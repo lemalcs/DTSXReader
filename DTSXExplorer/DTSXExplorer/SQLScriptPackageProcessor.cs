@@ -17,8 +17,8 @@ namespace DTSXExplorer
             {
                 foreach (var item in itemList)
                 {
-                    sw.WriteLine($"insert into dtsx_info(dtsx_id,dtsx_name,item_id,item_type,field_id,field_name,value,linked_item_type)");
-                    sw.WriteLine($"values(1,'{item.DTSXName}',{item.ItemId},'{item.ItemType}',{item.FieldId},'{item.FieldName}','{item.Value.Replace("'", "''").Replace("\n", "\r\n")}','{item.LinkedItemType}')");
+                    sw.WriteLine($"insert into dtsx_info(dtsx_id,dtsx_path,dtsx_name,item_id,item_type,field_id,field_name,value,linked_item_type)");
+                    sw.WriteLine($"values(1,'{Path.GetDirectoryName(packagePath).Replace("'", "''")}','{item.DTSXName}',{item.ItemId},'{item.ItemType}',{item.FieldId},'{item.FieldName}','{item.Value.Replace("'", "''").Replace("\n", "\r\n")}','{item.LinkedItemType}')");
                 }
             }
         }
@@ -36,7 +36,7 @@ namespace DTSXExplorer
                     foreach (var item in itemList)
                     {
                         sw.WriteLine($"insert into dtsx_info(dtsx_id,dtsx_name,item_id,item_type,field_id,field_name,value,linked_item_type)");
-                        sw.WriteLine($"values({i + 1},'{item.DTSXName}',{item.ItemId},'{item.ItemType}',{item.FieldId},'{item.FieldName}','{item.Value.Replace("'", "''").Replace("\n", "\r\n")}','{item.LinkedItemType}')");
+                        sw.WriteLine($"values({i + 1},'{Path.GetDirectoryName(dtsxFiles[i]).Replace("'", "''")}','{item.DTSXName}',{item.ItemId},'{item.ItemType}',{item.FieldId},'{item.FieldName}','{item.Value.Replace("'", "''").Replace("\n", "\r\n")}','{item.LinkedItemType}')");
                     }
                 }
             }
