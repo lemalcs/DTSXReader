@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
+using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
 namespace DTSXExplorer
@@ -10,58 +8,58 @@ namespace DTSXExplorer
     /// <summary>
     /// The view model for DTSX reader main window.
     /// </summary>
-    internal class ReaderViewModel: BaseModel
+    internal class ReaderViewModel : BaseModel
     {
         #region Properties
 
         /// <summary>
         /// The path of DTSX file or the path of folder containing DTSX files.
         /// </summary>
-        private string sourcePath;
+		private string sourcePath;
 
         /// <summary>
         /// The path of folder where exported file will be written.
         /// </summary>
-        private string destinationPath;
+		private string destinationPath;
 
         /// <summary>
         /// Read files with a background process.
         /// </summary>
-        private BackgroundWorker worker=null;
+        private BackgroundWorker worker = null;
 
         /// <summary>
         /// The description of current activity being performed.
         /// </summary>
-        private string resultMessage;
+		private string resultMessage;
 
         /// <summary>
         /// Indicates whether to process a single DTSX file.
         /// </summary>
-        private bool singleFile;
+		private bool singleFile;
 
         /// <summary>
         /// Indicates whether to process multiple DTSX files.
         /// </summary>
-        private bool multipleFiles;
+		private bool multipleFiles;
 
-        public string SourcePath 
-        { 
+        public string SourcePath
+        {
             get => sourcePath;
-            set 
-            { 
-                if(sourcePath != value)
+            set
+            {
+                if (sourcePath != value)
                 {
                     sourcePath = value;
                     OnPropertyChanged(nameof(SourcePath));
                 }
             }
         }
-        public string DestinationPath 
-        { 
+        public string DestinationPath
+        {
             get => destinationPath;
-            set 
-            { 
-                if(destinationPath != value)
+            set
+            {
+                if (destinationPath != value)
                 {
                     destinationPath = value;
                     OnPropertyChanged(nameof(DestinationPath));
@@ -69,12 +67,12 @@ namespace DTSXExplorer
             }
         }
 
-        public string ResultMessage 
-        { 
+        public string ResultMessage
+        {
             get => resultMessage;
-            set 
-            { 
-                if(resultMessage != value)
+            set
+            {
+                if (resultMessage != value)
                 {
                     resultMessage = value;
                     OnPropertyChanged(nameof(ResultMessage));
@@ -82,24 +80,24 @@ namespace DTSXExplorer
             }
         }
 
-        public bool SingleFile 
-        { 
+        public bool SingleFile
+        {
             get => singleFile;
-            set 
-            { 
-                if(singleFile != value)
+            set
+            {
+                if (singleFile != value)
                 {
                     singleFile = value;
                     OnPropertyChanged(nameof(SingleFile));
                 }
             }
         }
-        public bool MultipleFiles 
-        { 
+        public bool MultipleFiles
+        {
             get => multipleFiles;
             set
-            { 
-                if(multipleFiles != value)
+            {
+                if (multipleFiles != value)
                 {
                     multipleFiles = value;
                     OnPropertyChanged(nameof(MultipleFiles));
@@ -116,7 +114,7 @@ namespace DTSXExplorer
 
         public ReaderViewModel()
         {
-            worker= new BackgroundWorker();
+            worker = new BackgroundWorker();
             worker.DoWork += Worker_DoWork;
             worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
             ReadCommand = new RelayCommand(ReadPackage);
@@ -126,7 +124,7 @@ namespace DTSXExplorer
         /// <summary>
         /// Read the DTSX files.
         /// </summary>
-        private void ReadPackage()
+		private void ReadPackage()
         {
             worker.RunWorkerAsync();
             ResultMessage = "Reading...";
@@ -137,15 +135,15 @@ namespace DTSXExplorer
             try
             {
                 IPackageProcessor packageProcessor = new SQLScriptPackageProcessor();
-                if(SingleFile)
+
+                if (SingleFile)
                     packageProcessor.Export(SourcePath, DestinationPath);
                 else
-                    packageProcessor.ExportBatch(SourcePath, DestinationPath);
+                    packageProcessor.ExportPerFile(SourcePath, DestinationPath);
             }
             catch (Exception)
             {
                 throw;
-
             }
         }
 

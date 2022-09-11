@@ -86,7 +86,7 @@ namespace DTSXExplorer
                             if(parentStack.Count>0)
                             {
                                 parentStack.Peek().ChildrenCount++;
-                                Console.WriteLine($"Child _{parentStack.Peek().ChildrenCount} of {parentStack.Peek().Name}.");
+                                //Console.WriteLine($"Child _{parentStack.Peek().ChildrenCount} of {parentStack.Peek().Name}.");
                                 var currentFieldId = items.Where(x => x.ItemId == parentStack.Peek().Id).Select(x => x.FieldId).Max();
                                 childItem = new DTSXItem
                                 {
@@ -101,7 +101,7 @@ namespace DTSXExplorer
                                 items.Add(childItem);
                             }
                             
-                            Console.WriteLine("Start Element {0}", reader.Name);
+                            //Console.WriteLine("Start Element {0}", reader.Name);
 
                             itemCounter++;
 
@@ -133,9 +133,9 @@ namespace DTSXExplorer
 
                             break;
                         case XmlNodeType.Text:
-                            Console.WriteLine("Text Node: {0}", reader.Value);
+                            //Console.WriteLine("Text Node: {0}", reader.Value);
                             parentStack.Peek().ChildrenCount++;
-                            Console.WriteLine($"Child _{parentStack.Peek().ChildrenCount} of {parentStack.Peek().Name}.");
+                            //Console.WriteLine($"Child _{parentStack.Peek().ChildrenCount} of {parentStack.Peek().Name}.");
                             currentDepth=reader.Depth;
 
                             // Add an entry for new item
@@ -178,14 +178,14 @@ namespace DTSXExplorer
 
                             break;
                         case XmlNodeType.EndElement:
-                            Console.WriteLine("End Element {0}", reader.Name);
+                            //Console.WriteLine("End Element {0}", reader.Name);
                             parentStack.Pop();
                             break;
                         case XmlNodeType.CDATA:
                             if (parentStack.Count > 0)
                             {
                                 parentStack.Peek().ChildrenCount++;
-                                Console.WriteLine($"Child _{parentStack.Peek().ChildrenCount} of {parentStack.Peek().Name}.");
+                                //Console.WriteLine($"Child _{parentStack.Peek().ChildrenCount} of {parentStack.Peek().Name}.");
                             }
 
                             MemoryStream memoryStream = new MemoryStream();
@@ -199,13 +199,13 @@ namespace DTSXExplorer
                             }
                             catch (XmlException)
                             {
-                                Console.WriteLine("Text Node: {0}", reader.Value);
+                                //Console.WriteLine("Text Node: {0}", reader.Value);
                                 currentDepth = reader.Depth;
                             }
                             break;
                         default:
-                            Console.WriteLine("Other node {0} with value {1}",
-                                            reader.NodeType, reader.Value);
+                            //Console.WriteLine("Other node {0} with value {1}",
+                            //                reader.NodeType, reader.Value);
                             break;
                     }
                 }
@@ -244,7 +244,7 @@ namespace DTSXExplorer
             int fieldId = 1;
             while(reader.MoveToNextAttribute())
             {
-                Console.WriteLine($"Attribute name {reader.Name} with value {reader.Value}");
+                //Console.WriteLine($"Attribute name {reader.Name} with value {reader.Value}");
                 DTSXItem item = items.Last();
                 items.Add(new DTSXItem
                 {

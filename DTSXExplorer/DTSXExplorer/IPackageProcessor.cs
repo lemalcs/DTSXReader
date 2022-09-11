@@ -20,5 +20,12 @@ namespace DTSXExplorer
         /// <param name="packagePathsList">The path of folder containing the DTSX files.</param>
         /// <param name="destinationFolder">The path of file containing the exported files.</param>
         void ExportBatch(string packagePathsList, string destinationFolder);
+
+        /// <summary>
+        /// Export multiple DTSX files to individual files.
+        /// </summary>
+        /// <param name="packagePathsList">The path of folder containing the DTSX files.</param>
+        /// <param name="destinationFolder">The path of folder where to store exported files.</param>
+        void ExportPerFile(string packagePathsList, string destinationFolder);
     }
 }
