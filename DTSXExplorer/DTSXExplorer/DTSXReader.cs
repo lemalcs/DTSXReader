@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -34,10 +32,10 @@ namespace DTSXExplorer
         /// </summary>
         private int itemCounter = 0;
 
-        public Dictionary<string, int> ElementCounters 
-        { 
-            get => elementCounters; 
-            private set => elementCounters = value; 
+        public Dictionary<string, int> ElementCounters
+        {
+            get => elementCounters;
+            private set => elementCounters = value;
         }
 
         #endregion
@@ -55,7 +53,7 @@ namespace DTSXExplorer
             using (FileStream fs = new FileStream(filePath,
                 FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                DTSXName=Path.GetFileName(filePath);
+                DTSXName = Path.GetFileName(filePath);
                 return ParseXML(fs);
             }
         }
@@ -68,12 +66,12 @@ namespace DTSXExplorer
         private List<DTSXItem> ParseXML(Stream stream)
         {
             XmlReaderSettings settings = new XmlReaderSettings();
-            
+
             using (XmlReader reader = XmlReader.Create(stream, settings))
             {
-                int currentDepth=-1;
-                string currentParent=string.Empty;
-                Stack<Element> parentStack=new Stack<Element>();
+                int currentDepth = -1;
+                string currentParent = string.Empty;
+                Stack<Element> parentStack = new Stack<Element>();
 
 
                 while (reader.Read())
@@ -83,25 +81,22 @@ namespace DTSXExplorer
                         case XmlNodeType.Element:
 
                             DTSXItem childItem = null;
-                            if(parentStack.Count>0)
+                            if (parentStack.Count > 0)
                             {
                                 parentStack.Peek().ChildrenCount++;
-                                //Console.WriteLine($"Child _{parentStack.Peek().ChildrenCount} of {parentStack.Peek().Name}.");
                                 var currentFieldId = items.Where(x => x.ItemId == parentStack.Peek().Id).Select(x => x.FieldId).Max();
                                 childItem = new DTSXItem
                                 {
                                     DTSXName = DTSXName,
                                     ItemId = parentStack.Peek().Id,
                                     ItemType = parentStack.Peek().Name,
-                                    FieldId = currentFieldId+1,
+                                    FieldId = currentFieldId + 1,
                                     FieldName = "_child_",
                                     Value = "",
                                     LinkedItemType = reader.Name
                                 };
                                 items.Add(childItem);
                             }
-                            
-                            //Console.WriteLine("Start Element {0}", reader.Name);
 
                             itemCounter++;
 
@@ -117,15 +112,15 @@ namespace DTSXExplorer
                             };
                             items.Add(newItem);
 
-                            if(childItem != null)
+                            if (childItem != null)
                                 childItem.Value = itemCounter.ToString();
 
                             if (!reader.IsEmptyElement)
                             {
-                                parentStack.Push(new Element { Name = reader.Name, ChildrenCount = 0, Id=itemCounter,ItemDetail=newItem });
+                                parentStack.Push(new Element { Name = reader.Name, ChildrenCount = 0, Id = itemCounter, ItemDetail = newItem });
                             }
-                            
-                            bool isEmptyElement=reader.IsEmptyElement;
+
+                            bool isEmptyElement = reader.IsEmptyElement;
 
                             currentDepth = reader.Depth;
                             IncreaseCounterForElement(reader.Name);
@@ -133,14 +128,13 @@ namespace DTSXExplorer
 
                             break;
                         case XmlNodeType.Text:
-                            //Console.WriteLine("Text Node: {0}", reader.Value);
                             parentStack.Peek().ChildrenCount++;
-                            //Console.WriteLine($"Child _{parentStack.Peek().ChildrenCount} of {parentStack.Peek().Name}.");
-                            currentDepth=reader.Depth;
+
+                            currentDepth = reader.Depth;
 
                             // Add an entry for new item
                             itemCounter++;
-                            
+
                             // Add an entry for child
                             items.Add(new DTSXItem
                             {
@@ -173,24 +167,22 @@ namespace DTSXExplorer
                                 ItemType = "TEXT",
                                 FieldId = 0,
                                 FieldName = "value",
-                                Value = reader.Value  
+                                Value = reader.Value
                             });
 
                             break;
                         case XmlNodeType.EndElement:
-                            //Console.WriteLine("End Element {0}", reader.Name);
                             parentStack.Pop();
                             break;
                         case XmlNodeType.CDATA:
                             if (parentStack.Count > 0)
                             {
                                 parentStack.Peek().ChildrenCount++;
-                                //Console.WriteLine($"Child _{parentStack.Peek().ChildrenCount} of {parentStack.Peek().Name}.");
                             }
 
                             MemoryStream memoryStream = new MemoryStream();
                             byte[] cdataContent = Encoding.UTF8.GetBytes(reader.Value);
-                            memoryStream.Write(cdataContent,0,cdataContent.Length);
+                            memoryStream.Write(cdataContent, 0, cdataContent.Length);
                             memoryStream.Position = 0;
                             try
                             {
@@ -199,7 +191,6 @@ namespace DTSXExplorer
                             }
                             catch (XmlException)
                             {
-                                //Console.WriteLine("Text Node: {0}", reader.Value);
                                 currentDepth = reader.Depth;
 
                                 // Add an entry for new item
@@ -242,8 +233,7 @@ namespace DTSXExplorer
                             }
                             break;
                         default:
-                            //Console.WriteLine("Other node {0} with value {1}",
-                            //                reader.NodeType, reader.Value);
+                            // Don't add section not used in DTSX files.
                             break;
                     }
                 }
@@ -259,7 +249,7 @@ namespace DTSXExplorer
         /// <returns>The number of current counter for the element.</returns>
         private int IncreaseCounterForElement(string element)
         {
-            if(ElementCounters.ContainsKey(element))
+            if (ElementCounters.ContainsKey(element))
                 ElementCounters[element]++;
             else
                 ElementCounters.Add(element, 1);
@@ -280,18 +270,17 @@ namespace DTSXExplorer
                 return;
 
             int fieldId = 1;
-            while(reader.MoveToNextAttribute())
+            while (reader.MoveToNextAttribute())
             {
-                //Console.WriteLine($"Attribute name {reader.Name} with value {reader.Value}");
                 DTSXItem item = items.Last();
                 items.Add(new DTSXItem
                 {
                     DTSXName = item.DTSXName,
-                    ItemId=item.ItemId,
-                    ItemType=item.ItemType,
-                    FieldId=fieldId,
-                    FieldName=reader.Name,
-                    Value=reader.Value
+                    ItemId = item.ItemId,
+                    ItemType = item.ItemType,
+                    FieldId = fieldId,
+                    FieldName = reader.Name,
+                    Value = reader.Value
                 });
                 fieldId++;
             }

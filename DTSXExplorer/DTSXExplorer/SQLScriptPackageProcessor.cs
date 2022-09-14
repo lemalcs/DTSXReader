@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 
 namespace DTSXExplorer
 {
@@ -29,12 +25,11 @@ namespace DTSXExplorer
         public void ExportBatch(string packagePathsList, string destinationFolder)
         {
             if (counter == 1)
-            { 
+            {
                 File.Delete(Path.Combine(destinationFolder, SQL_SCRIPT_PACKAGE_LIST_NAME));
-                Console.WriteLine($"Start time: {DateTime.Now.ToLongTimeString()}");
             }
 
-            using (StreamWriter sw = new StreamWriter(Path.Combine(destinationFolder, SQL_SCRIPT_PACKAGE_LIST_NAME),true))
+            using (StreamWriter sw = new StreamWriter(Path.Combine(destinationFolder, SQL_SCRIPT_PACKAGE_LIST_NAME), true))
             {
                 string[] dtsxFiles = Directory.GetFiles(packagePathsList, "*.dtsx");
                 for (int i = 0; i < dtsxFiles.Length; i++)
@@ -51,7 +46,6 @@ namespace DTSXExplorer
                     counter++;
                 }
             }
-            Console.WriteLine($"Number of processed files: {counter}");
 
             string[] childDirectories = Directory.GetDirectories(packagePathsList);
             if (childDirectories.Length > 0)
@@ -68,7 +62,6 @@ namespace DTSXExplorer
             if (counter == 1)
             {
                 File.Delete(Path.Combine(destinationFolder, $"{counter.ToString()}_{SQL_SCRIPT_PACKAGE_LIST_NAME}"));
-                Console.WriteLine($"Start time: {DateTime.Now.ToLongTimeString()}");
             }
 
             using (StreamWriter sw = new StreamWriter(Path.Combine(destinationFolder, $"{counter.ToString()}_{SQL_SCRIPT_PACKAGE_LIST_NAME}")))
@@ -82,13 +75,12 @@ namespace DTSXExplorer
                     foreach (var item in itemList)
                     {
                         sw.WriteLine($"insert into dtsx_info(dtsx_id,dtsx_path,dtsx_name,item_id,item_type,field_id,field_name,value,linked_item_type)");
-                        sw.WriteLine($"values({counter},'{Path.GetDirectoryName(dtsxFiles[i]).Replace("'", "''")}','{item.DTSXName.Replace("'","''")}',{item.ItemId},'{item.ItemType}',{item.FieldId},'{item.FieldName}','{item.Value.Replace("'", "''").Replace("\n", "\r\n")}','{item.LinkedItemType}')");
+                        sw.WriteLine($"values({counter},'{Path.GetDirectoryName(dtsxFiles[i]).Replace("'", "''")}','{item.DTSXName.Replace("'", "''")}',{item.ItemId},'{item.ItemType}',{item.FieldId},'{item.FieldName}','{item.Value.Replace("'", "''").Replace("\n", "\r\n")}','{item.LinkedItemType}')");
                     }
                     sw.WriteLine("commit tran");
                     counter++;
                 }
             }
-            Console.WriteLine($"Number of processed files: {counter}");
 
             string[] childDirectories = Directory.GetDirectories(packagePathsList);
             if (childDirectories.Length > 0)

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
+﻿using System.Runtime.Serialization;
 
 namespace DTSXExplorer
 {
@@ -14,7 +10,7 @@ namespace DTSXExplorer
 
         [DataMember]
         public int ItemId { get; set; }
-        
+
         [DataMember]
         public string ItemType { get; set; }
 
@@ -23,7 +19,7 @@ namespace DTSXExplorer
 
         [DataMember]
         public string FieldName { get; set; }
-        
+
         [DataMember]
         public string Value { get; set; }
 
