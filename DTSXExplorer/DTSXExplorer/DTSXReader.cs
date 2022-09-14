@@ -201,6 +201,44 @@ namespace DTSXExplorer
                             {
                                 //Console.WriteLine("Text Node: {0}", reader.Value);
                                 currentDepth = reader.Depth;
+
+                                // Add an entry for new item
+                                itemCounter++;
+
+                                // Add an entry for child
+                                items.Add(new DTSXItem
+                                {
+                                    DTSXName = DTSXName,
+                                    ItemId = parentStack.Peek().ItemDetail.ItemId,
+                                    ItemType = parentStack.Peek().ItemDetail.ItemType,
+                                    FieldId = parentStack.Peek().ItemDetail.FieldId + 1,
+                                    FieldName = "_child_",
+                                    Value = itemCounter.ToString(),
+                                    LinkedItemType = "TEXT"
+                                });
+
+
+                                items.Add(new DTSXItem
+                                {
+                                    DTSXName = DTSXName,
+                                    ItemId = itemCounter,
+                                    ItemType = "TEXT",
+                                    FieldId = 0,
+                                    FieldName = "_parent_id",
+                                    Value = parentStack.Peek().ItemDetail.ItemId.ToString(),
+                                    LinkedItemType = parentStack.Peek().ItemDetail.ItemType
+                                });
+
+                                // Add an entry for text value
+                                items.Add(new DTSXItem
+                                {
+                                    DTSXName = DTSXName,
+                                    ItemId = itemCounter,
+                                    ItemType = "TEXT",
+                                    FieldId = 0,
+                                    FieldName = "value",
+                                    Value = reader.Value
+                                });
                             }
                             break;
                         default:
