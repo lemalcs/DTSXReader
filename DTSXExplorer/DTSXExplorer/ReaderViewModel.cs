@@ -41,6 +41,11 @@ namespace DTSXExplorer
         /// </summary>
 		private bool multipleFiles;
 
+        /// <summary>
+        /// Indicates whether there is a currently reading operation.
+        /// </summary>
+        private bool isReading;
+
         public string SourcePath
         {
             get => sourcePath;
@@ -103,6 +108,18 @@ namespace DTSXExplorer
                 }
             }
         }
+        public bool IsReading 
+        { 
+            get => isReading;
+            set 
+            { 
+                if(isReading != value)
+                {
+                    isReading = value;
+                    OnPropertyChanged(nameof(IsReading));
+                }; 
+            }
+        }
 
         #endregion
 
@@ -134,6 +151,7 @@ namespace DTSXExplorer
             try
             {
                 IPackageProcessor packageProcessor = new SQLScriptPackageProcessor();
+                IsReading = true;
 
                 if (SingleFile)
                     packageProcessor.Export(SourcePath, DestinationPath);
@@ -148,6 +166,8 @@ namespace DTSXExplorer
 
         private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            IsReading = false;
+
             if (e.Error != null)
                 ResultMessage = e.Error.Message;
             else

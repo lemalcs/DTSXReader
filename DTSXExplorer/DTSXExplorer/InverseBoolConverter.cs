@@ -1,0 +1,23 @@
+﻿using System;
+using System.Globalization;
+
+namespace DTSXExplorer
+{
+    /// <summary>
+    /// Returns inverse value <see cref="bool"/> variable.
+    /// </summary>
+    public class InverseBoolConverter : BaseValueConverter<InverseBoolConverter>
+    {
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            bool val = (bool)value;
+
+            return !val;
+        }
+
+        public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return null;
+        }
+    }
+}
