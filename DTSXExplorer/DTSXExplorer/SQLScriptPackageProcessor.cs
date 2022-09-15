@@ -7,6 +7,22 @@ namespace DTSXExplorer
         private int counter = 1;
 
         private const string SQL_SCRIPT_PACKAGE_LIST_NAME = "dtsx-data.sql";
+
+        private const string SQL_SCRIPT_TABLE_CREATION = 
+            @"/*
+CREATE TABLE DTSX_INFO(
+DTSX_ID INT,
+DTSX_PATH NVARCHAR(2000),
+DTSX_NAME VARCHAR(200),
+ITEM_ID INT,
+ITEM_TYPE VARCHAR(200),
+FIELD_ID INT,
+FIELD_NAME VARCHAR(200),
+VALUE VARCHAR(MAX),
+LINKED_ITEM_TYPE VARCHAR(200)
+)
+*/";
+
         public void Export(string packagePath, string destinationFile)
         {
             DTSXReader reader = new DTSXReader();
@@ -14,6 +30,7 @@ namespace DTSXExplorer
 
             using (StreamWriter sw = new StreamWriter(Path.Combine(destinationFile, "single-dtsx-data.sql")))
             {
+                sw.WriteLine(SQL_SCRIPT_TABLE_CREATION);
                 foreach (var item in itemList)
                 {
                     sw.WriteLine($"insert into dtsx_info(dtsx_id,dtsx_path,dtsx_name,item_id,item_type,field_id,field_name,value,linked_item_type)");
@@ -31,6 +48,8 @@ namespace DTSXExplorer
 
             using (StreamWriter sw = new StreamWriter(Path.Combine(destinationFolder, SQL_SCRIPT_PACKAGE_LIST_NAME), true))
             {
+                sw.WriteLine(SQL_SCRIPT_TABLE_CREATION);
+
                 string[] dtsxFiles = Directory.GetFiles(packagePathsList, "*.dtsx");
                 for (int i = 0; i < dtsxFiles.Length; i++)
                 {
@@ -66,6 +85,8 @@ namespace DTSXExplorer
 
             using (StreamWriter sw = new StreamWriter(Path.Combine(destinationFolder, $"{counter.ToString()}_{SQL_SCRIPT_PACKAGE_LIST_NAME}")))
             {
+                sw.WriteLine(SQL_SCRIPT_TABLE_CREATION);
+
                 string[] dtsxFiles = Directory.GetFiles(packagePathsList, "*.dtsx");
                 for (int i = 0; i < dtsxFiles.Length; i++)
                 {
