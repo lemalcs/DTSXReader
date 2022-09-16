@@ -4,8 +4,14 @@ namespace DTSXExplorer
 {
     internal class SQLScriptPackageProcessor : IPackageProcessor
     {
+        /// <summary>
+        /// The current number of read DTSX files.
+        /// </summary>
         private int counter = 1;
 
+        /// <summary>
+        /// The name of script files when reading multiple DTSX files.
+        /// </summary>
         private const string SQL_SCRIPT_PACKAGE_LIST_NAME = "dtsx-data.sql";
 
         private const string SQL_SCRIPT_TABLE_CREATION = 
