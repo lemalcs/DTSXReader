@@ -20,21 +20,38 @@ namespace DTSXExplorer
             DataContext = viewModel;
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void btn_Browse_Source_Path_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            if (openFileDialog.ShowDialog().Value)
+            if(viewModel.MultipleFiles)
             {
-                viewModel.SourcePath = openFileDialog.FileName;
+                viewModel.SourcePath = OpenFolderPicker();
+            }
+            else
+            {
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                if (openFileDialog.ShowDialog().Value)
+                {
+                    viewModel.SourcePath = openFileDialog.FileName;
+                }
             }
         }
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private void btn_Browse_Destination_Path_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.DestinationPath = OpenFolderPicker() ?? viewModel.DestinationPath;
+        }
+
+        /// <summary>
+        /// Opens a dialog to pick a folder. 
+        /// </summary>
+        /// <returns>The path of select folder.</returns>
+        private string OpenFolderPicker()
         {
             CommonOpenFileDialog openFileDialog = new CommonOpenFileDialog();
             openFileDialog.IsFolderPicker = true;
             if (openFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
-                viewModel.DestinationPath = openFileDialog.FileName;
+                return openFileDialog.FileName;
+            return null;
         }
     }
 }

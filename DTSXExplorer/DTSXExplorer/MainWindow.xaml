@@ -83,7 +83,7 @@
 							Height="20"
 							VerticalAlignment="Top"
 							Content="Browse"
-							Click="Button_Click_1" />
+							Click="btn_Browse_Source_Path_Click" />
                     
                     <!-- Destination path controls -->
                     <TextBlock Grid.Row="4"
@@ -104,7 +104,7 @@
 							Content="Browse"
 							Height="20"
 							VerticalAlignment="Top"
-							Click="Button_Click_2" />
+							Click="btn_Browse_Destination_Path_Click" />
                     
                     <!-- Start reading file -->
                     <Button Grid.Row="6"
