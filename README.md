@@ -28,7 +28,7 @@ If you need to execute the scripts for other relational databases that support S
 
 Once a DTSX file is loaded to the table you can run queries to gather any king of information.
 
-**Get sql queries from SQL Tasks**
+**A. Get sql queries from SQL Tasks**
 
 ```sql
 select dtsx_id,dtsx_name,value as sql_query
@@ -39,8 +39,9 @@ and field_name='SQLTask:SqlStatementSource'
 ```
 
 
-**Get comments**
+**B. Get comments**
 
+This query work for Integration Services 2012 and later:
 ```sql
 select dtsx_id,dtsx_name,value as comments 
 from dtsx_info
@@ -50,8 +51,32 @@ and field_name='Text'
 ```
 
 
-**Get variables**
+**C. Get variables**
 
+This query only works for Integration Services 2005 and Integration Services 2008:
+
+```sql
+select dt.dtsx_id,dt.dtsx_name,actualname.value as variable_name
+from dtsx_info dt
+join dtsx_info childdetail
+on dt.dtsx_id=childdetail.dtsx_id
+and childdetail.item_id=dt.value
+join dtsx_info text
+on dt.dtsx_id=text.dtsx_id
+and text.item_id=childdetail.item_id
+join dtsx_info actualname
+on dt.dtsx_id=actualname.dtsx_id
+and actualname.item_id=text.value
+where
+dt.item_type='DTS:Variable'
+and dt.field_name='_child_'
+and childdetail.field_name='DTS:Name'
+and childDetail.value='ObjectName'
+and text.field_name='_child_'
+and actualname.field_name='value'
+```
+
+This query works for Integration Services 2012 and later:
 ```sql
 select dtsx_id,dtsx_name,value as variable_name
 from dtsx_info 
@@ -61,8 +86,9 @@ and field_name='DTS:ObjectName'
 ```
 
 
-**Get email addresses**
+**D. Get email addresses**
 
+These queries work for Integration Services 2012 and later:
 ```sql
 -- FROM field
 select distinct dtsx_id,dtsx_name,value as FROM_email_address
@@ -89,8 +115,9 @@ and field_name='SendMailTask:BCC'
 ```
 
 
-**Get connection strings**
+**E. Get connection strings**
 
+This query only works for Integration Services 2005 and Integration Services 2008:
 ```sql
 select d.dtsx_id,d.dtsx_name,string.value as connection_string
 from dtsx_info d join dtsx_info conn
@@ -107,4 +134,41 @@ and conn.field_name='_child_'
 and string.field_name='value'
 ```
 
-To retrieve more information such as data flow tasks, creator name, script tasks; you should open the dtsx file with a text editor and read the inner XML in order to build a query that fits your needs.
+
+This query works for Integration Services 2012 and later.
+```sql
+select
+refId.dtsx_id,
+refId.dtsx_name,
+refId.value as dts_refId,
+ssId.value as dts_dtsid,
+connString.value as connection_string,
+conntype.value as connection_type
+from 
+dtsx_info refId join dtsx_info d 
+on refId.dtsx_id=d.dtsx_id
+and refId.item_id=d.item_id
+join dtsx_info connChild
+on d.dtsx_id=connChild.dtsx_id
+and d.value=connChild.item_id
+join dtsx_info connString
+on connChild.dtsx_id=connString.dtsx_id
+and connString.item_id=connChild.value
+join dtsx_info ssId
+on refId.dtsx_id=ssId.dtsx_id
+and refId.item_id=ssId.item_id
+join dtsx_info conntype
+on ssId.dtsx_id=conntype.dtsx_id
+and ssId.item_id=conntype.item_id
+where
+d.field_name='_child_'
+and connChild.field_name='_child_'
+and connString.field_name='DTS:ConnectionString'
+and refId.field_name='DTS:refId'
+and ssId.field_name='DTS:DTSID'
+and conntype.field_name='DTS:CreationName'
+```
+
+**How to get more about content of a DTSX?**
+
+To retrieve more information such as data flow tasks, creator name, script tasks; you can open the DTSX file with a text editor and read the inner XML in order to write a query that fits your needs, the queries listed above can give guidelines of how to write them.
