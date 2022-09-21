@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace DTSXExplorer
 {
@@ -14,6 +15,15 @@ namespace DTSXExplorer
         /// </summary>
         private const string SQL_SCRIPT_PACKAGE_LIST_NAME = "dtsx-data.sql";
 
+        /// <summary>
+        /// The name of script file when reading a single DTSX file.
+        /// </summary>
+        private const string SQL_SCRIPT_FILE_NAME = "single-dtsx-data.sql";
+
+        /// <summary>
+        /// SQL statement to create the table where DTSX content will be inserted.
+        /// This script works for SQL Server database.
+        /// </summary>
         private const string SQL_SCRIPT_TABLE_CREATION = 
             @"/*
 CREATE TABLE DTSX_INFO(
@@ -34,7 +44,12 @@ LINKED_ITEM_TYPE VARCHAR(200)
             DTSXReader reader = new DTSXReader();
             var itemList = reader.Read(packagePath);
 
-            using (StreamWriter sw = new StreamWriter(Path.Combine(destinationFile, "single-dtsx-data.sql")))
+            string scriptFilePath = Path.Combine(destinationFile, SQL_SCRIPT_FILE_NAME);
+
+            if(File.Exists(scriptFilePath))
+                RenameExistingFile(scriptFilePath);
+
+            using (StreamWriter sw = new StreamWriter(scriptFilePath))
             {
                 sw.WriteLine(SQL_SCRIPT_TABLE_CREATION);
                 foreach (var item in itemList)
@@ -45,14 +60,17 @@ LINKED_ITEM_TYPE VARCHAR(200)
             }
         }
 
-        public void ExportBatch(string packagePathsList, string destinationFolder)
+        public void ExportToFiles(string packagePathsList, string destinationFolder)
         {
+            string scriptFilePath = Path.Combine(destinationFolder, $"{counter.ToString()}_{SQL_SCRIPT_PACKAGE_LIST_NAME}");
+
             if (counter == 1)
             {
-                File.Delete(Path.Combine(destinationFolder, SQL_SCRIPT_PACKAGE_LIST_NAME));
+                if(File.Exists(scriptFilePath))
+                    RenameExistingFile(scriptFilePath);
             }
 
-            using (StreamWriter sw = new StreamWriter(Path.Combine(destinationFolder, SQL_SCRIPT_PACKAGE_LIST_NAME), true))
+            using (StreamWriter sw = new StreamWriter(scriptFilePath))
             {
                 sw.WriteLine(SQL_SCRIPT_TABLE_CREATION);
 
@@ -77,45 +95,42 @@ LINKED_ITEM_TYPE VARCHAR(200)
             {
                 foreach (string path in childDirectories)
                 {
-                    ExportBatch(path, destinationFolder);
+                    ExportToFiles(path, destinationFolder);
                 }
             }
         }
 
-        public void ExportPerFile(string packagePathsList, string destinationFolder)
+        /// <summary>
+        /// Rename an existing file adding a number at the end of its name but before the extension.
+        /// </summary>
+        /// <param name="fileName">The file path to rename to.</param>
+        /// <returns>The path of renamed file.</returns>
+        private string RenameExistingFile(string fileName)
         {
-            if (counter == 1)
+            try
             {
-                File.Delete(Path.Combine(destinationFolder, $"{counter.ToString()}_{SQL_SCRIPT_PACKAGE_LIST_NAME}"));
-            }
-
-            using (StreamWriter sw = new StreamWriter(Path.Combine(destinationFolder, $"{counter.ToString()}_{SQL_SCRIPT_PACKAGE_LIST_NAME}")))
-            {
-                sw.WriteLine(SQL_SCRIPT_TABLE_CREATION);
-
-                string[] dtsxFiles = Directory.GetFiles(packagePathsList, "*.dtsx");
-                for (int i = 0; i < dtsxFiles.Length; i++)
+                if (File.Exists(fileName))
                 {
-                    DTSXReader reader = new DTSXReader();
-                    var itemList = reader.Read(dtsxFiles[i]);
-                    sw.WriteLine("begin tran");
-                    foreach (var item in itemList)
+                    string newFileName = fileName;
+                    for (int counter = 0; File.Exists(newFileName);)
                     {
-                        sw.WriteLine($"insert into dtsx_info(dtsx_id,dtsx_path,dtsx_name,item_id,item_type,field_id,field_name,value,linked_item_type)");
-                        sw.WriteLine($"values({counter},'{Path.GetDirectoryName(dtsxFiles[i]).Replace("'", "''")}','{item.DTSXName.Replace("'", "''")}',{item.ItemId},'{item.ItemType}',{item.FieldId},'{item.FieldName}','{item.Value.Replace("'", "''").Replace("\n", "\r\n")}','{item.LinkedItemType}')");
+                        counter++;
+                        newFileName = Path.Combine(
+                            Path.GetDirectoryName(fileName),//Fill path of file
+                            string.Format("{0} ({1}){2}",
+                                            Path.GetFileNameWithoutExtension(fileName), //Name of file
+                                            counter,//Counter for new file name
+                                            Path.GetExtension(fileName))//Extension of file
+                            );
                     }
-                    sw.WriteLine("commit tran");
-                    counter++;
+                    File.Move(fileName, newFileName);
+                    return newFileName;
                 }
+                return null;
             }
-
-            string[] childDirectories = Directory.GetDirectories(packagePathsList);
-            if (childDirectories.Length > 0)
+            catch (Exception)
             {
-                foreach (string path in childDirectories)
-                {
-                    ExportPerFile(path, destinationFolder);
-                }
+                throw;
             }
         }
     }

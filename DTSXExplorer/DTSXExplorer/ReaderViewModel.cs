@@ -156,7 +156,7 @@ namespace DTSXExplorer
                 if (SingleFile)
                     packageProcessor.Export(SourcePath, DestinationPath);
                 else
-                    packageProcessor.ExportPerFile(SourcePath, DestinationPath);
+                    packageProcessor.ExportToFiles(SourcePath, DestinationPath);
             }
             catch (Exception)
             {

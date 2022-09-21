@@ -1,29 +1,22 @@
 ﻿namespace DTSXExplorer
 {
     /// <summary>
-    /// Export content of DTSX files.
+    /// Export the content of DTSX files to other formats.
     /// </summary>
     internal interface IPackageProcessor
     {
         /// <summary>
-        /// Export a single DTSX file.
+        /// Export the content of a single DTSX file to a single file.
         /// </summary>
         /// <param name="packagePath">The path of DTSX file.</param>
         /// <param name="destinationFile">The path of file containing the exported file.</param>
         void Export(string packagePath, string destinationFile);
 
         /// <summary>
-        /// Export multiple DTSX files.
-        /// </summary>
-        /// <param name="packagePathsList">The path of folder containing the DTSX files.</param>
-        /// <param name="destinationFolder">The path of file containing the exported files.</param>
-        void ExportBatch(string packagePathsList, string destinationFolder);
-
-        /// <summary>
-        /// Export multiple DTSX files to individual files.
+        /// Export the content of multiple DTSX files to multiple files.
         /// </summary>
         /// <param name="packagePathsList">The path of folder containing the DTSX files.</param>
         /// <param name="destinationFolder">The path of folder where to store exported files.</param>
-        void ExportPerFile(string packagePathsList, string destinationFolder);
+        void ExportToFiles(string packagePathsList, string destinationFolder);
     }
 }
