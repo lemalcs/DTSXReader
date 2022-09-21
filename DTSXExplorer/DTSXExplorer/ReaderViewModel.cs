@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
 
@@ -45,6 +47,8 @@ namespace DTSXExplorer
         /// Indicates whether there is a currently reading operation.
         /// </summary>
         private bool isReading;
+
+        private ObservableCollection<string> scriptFilePaths;
 
         public string SourcePath
         {
@@ -120,6 +124,18 @@ namespace DTSXExplorer
                 }; 
             }
         }
+        public ObservableCollection<string> ScriptFilePaths 
+        { 
+            get => scriptFilePaths;
+            private set 
+            { 
+                if(scriptFilePaths != value)
+                {
+                    scriptFilePaths = value;
+                    OnPropertyChanged(nameof(ScriptFilePaths));
+                }
+            } 
+        }
 
         #endregion
 
@@ -142,6 +158,9 @@ namespace DTSXExplorer
         /// </summary>
 		private void ReadPackage()
         {
+            if(ScriptFilePaths != null)
+                ScriptFilePaths.Clear();
+
             worker.RunWorkerAsync();
             ResultMessage = "Reading...";
         }
@@ -152,11 +171,11 @@ namespace DTSXExplorer
             {
                 IPackageProcessor packageProcessor = new SQLScriptPackageProcessor();
                 IsReading = true;
-
+               
                 if (SingleFile)
-                    packageProcessor.Export(SourcePath, DestinationPath);
+                    e.Result = packageProcessor.Export(SourcePath, DestinationPath);
                 else
-                    packageProcessor.ExportToFiles(SourcePath, DestinationPath);
+                    e.Result = packageProcessor.ExportToFiles(SourcePath, DestinationPath);
             }
             catch (Exception)
             {
@@ -169,9 +188,29 @@ namespace DTSXExplorer
             IsReading = false;
 
             if (e.Error != null)
+            {
                 ResultMessage = e.Error.Message;
+            }
             else
-                ResultMessage = $"Data exported to {DestinationPath}";
+            {
+                if (ScriptFilePaths == null)
+                    ScriptFilePaths = new ObservableCollection<string>();
+
+                if (e.Result is string)
+                {
+                    ScriptFilePaths.Add($"Output file: {e.Result.ToString()}");
+                    ResultMessage = $"Data exported to file: {e.Result.ToString()}";
+                }
+                else
+                {
+                    List<string> filePaths = (List<string>)e.Result;
+                    foreach (string filePath in filePaths)
+                    {
+                        ScriptFilePaths.Add($"Output file: {filePath}");
+                    }
+                    ResultMessage = $"Data exported to folder: {DestinationPath}";
+                }
+            }
         }
     }
 }

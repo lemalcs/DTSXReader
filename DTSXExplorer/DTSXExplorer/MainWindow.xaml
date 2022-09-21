@@ -5,12 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:local="clr-namespace:DTSXExplorer"
 	    Title="DTSX Reader"
-	    Height="310"
+	    Height="610"
         ResizeMode="NoResize"
 	    Width="800">
     <Grid>
-        <StackPanel>
-            <StackPanel Orientation="Vertical"
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="250"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="70"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" 
+                        Orientation="Vertical"
                         IsEnabled="{Binding IsReading,Converter={local:InverseBoolConverter}}" >
                 
                 <Grid Margin="10 10 25 0">
@@ -117,22 +124,26 @@
 							Command="{Binding ReadCommand}" />
                 </Grid>
             </StackPanel>
-            
-            <TextBlock Text="DTSX List:"
-					   Visibility="Collapsed" />
-            
-            <ListBox Visibility="Collapsed" />
-            
-            <Grid>
-                <Button Content="Export"
-					    Width="100"
-					    HorizontalAlignment="Right"
-					    Visibility="Collapsed" />
-            </Grid>
-            
-            <TextBlock Margin="25 20 0 0"
-				       FontWeight="Bold"
-				       Text="{Binding ResultMessage}" />
-        </StackPanel>
+
+            <Border Grid.Row="1">
+                <TextBlock Text="Log:" 
+                       Margin="25 0 0 0"/>
+                
+            </Border>
+
+            <ListBox Grid.Row="2" 
+                     ItemsSource="{Binding ScriptFilePaths}"
+                     Margin="25 0 25 0"
+                     VerticalAlignment="Stretch"/>
+
+            <Border Grid.Row="3"
+                    Margin="25 10 25 20"
+                    Padding="5 0 0 0"
+                    BorderThickness="1"
+                    BorderBrush="Black">
+                <TextBlock FontWeight="Bold"
+				           Text="{Binding ResultMessage}" />
+            </Border>
+        </Grid>
     </Grid>
 </Window>

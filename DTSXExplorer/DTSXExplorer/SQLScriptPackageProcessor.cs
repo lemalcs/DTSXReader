@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace DTSXExplorer
@@ -39,7 +40,7 @@ LINKED_ITEM_TYPE VARCHAR(200)
 )
 */";
 
-        public void Export(string packagePath, string destinationFile)
+        public string Export(string packagePath, string destinationFile)
         {
             DTSXReader reader = new DTSXReader();
             var itemList = reader.Read(packagePath);
@@ -58,9 +59,11 @@ LINKED_ITEM_TYPE VARCHAR(200)
                     sw.WriteLine($"values({counter},'{Path.GetDirectoryName(packagePath).Replace("'", "''")}','{item.DTSXName.Replace("'", "''")}',{item.ItemId},'{item.ItemType}',{item.FieldId},'{item.FieldName}','{item.Value.Replace("'", "''").Replace("\n", "\r\n")}','{item.LinkedItemType}')");
                 }
             }
+
+            return scriptFilePath;
         }
 
-        public void ExportToFiles(string packagePathsList, string destinationFolder)
+        public List<string> ExportToFiles(string packagePathsList, string destinationFolder)
         {
             string scriptFilePath = Path.Combine(destinationFolder, $"{counter.ToString()}_{SQL_SCRIPT_PACKAGE_LIST_NAME}");
 
@@ -69,6 +72,8 @@ LINKED_ITEM_TYPE VARCHAR(200)
                 if(File.Exists(scriptFilePath))
                     RenameExistingFile(scriptFilePath);
             }
+
+            List<string> outputScripFiles = new List<string> { scriptFilePath };
 
             using (StreamWriter sw = new StreamWriter(scriptFilePath))
             {
@@ -95,9 +100,18 @@ LINKED_ITEM_TYPE VARCHAR(200)
             {
                 foreach (string path in childDirectories)
                 {
-                    ExportToFiles(path, destinationFolder);
+                    List<string> scriptsList = ExportToFiles(path, destinationFolder);
+                    foreach(string script in scriptsList)
+                    {
+                        if(!outputScripFiles.Contains(script))
+                        {
+                            outputScripFiles.Add(script);                        
+                        }
+                    }
                 }
             }
+
+            return outputScripFiles; 
         }
 
         /// <summary>
