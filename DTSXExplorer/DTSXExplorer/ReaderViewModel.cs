@@ -160,7 +160,10 @@ namespace DTSXExplorer
         {
             if(ScriptFilePaths != null)
                 ScriptFilePaths.Clear();
+            else
+                ScriptFilePaths = new ObservableCollection<string>();
 
+            ScriptFilePaths.Add($"Start time: {DateTime.Now.ToLongTimeString()}");
             worker.RunWorkerAsync();
             ResultMessage = "Reading...";
         }
@@ -211,6 +214,7 @@ namespace DTSXExplorer
                     ResultMessage = $"Data exported to folder: {DestinationPath}";
                 }
             }
+            ScriptFilePaths.Add($"End time: {DateTime.Now.ToLongTimeString()}");
         }
     }
 }
