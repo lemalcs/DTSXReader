@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using System.ComponentModel;
 using System.Windows;
 
 namespace DTSXExplorer
@@ -10,19 +9,17 @@ namespace DTSXExplorer
     /// </summary>
     public partial class MainWindow : Window
     {
-        BackgroundWorker worker;
         ReaderViewModel viewModel;
         public MainWindow()
         {
             InitializeComponent();
-            worker = new BackgroundWorker();
             viewModel = new ReaderViewModel();
             DataContext = viewModel;
         }
 
         private void btn_Browse_Source_Path_Click(object sender, RoutedEventArgs e)
         {
-            if(viewModel.MultipleFiles)
+            if (viewModel.MultipleFiles)
             {
                 viewModel.SourcePath = OpenFolderPicker();
             }

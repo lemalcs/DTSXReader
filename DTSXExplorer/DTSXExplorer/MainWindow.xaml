@@ -6,16 +6,26 @@
         xmlns:local="clr-namespace:DTSXExplorer"
 	    Title="DTSX Reader"
 	    Height="610"
-        ResizeMode="NoResize"
-	    Width="800">
+	    Width="800"
+        MinHeight="410"
+        MinWidth="380">
     <Grid>
         <Grid>
             <Grid.RowDefinitions>
+                
+                <!-- Input controls -->
                 <RowDefinition Height="250"/>
+                
+                <!-- Log label -->
                 <RowDefinition Height="20"/>
+                
+                <!-- Log entries -->
                 <RowDefinition Height="*"/>
+                
+                <!-- Results -->
                 <RowDefinition Height="70"/>
             </Grid.RowDefinitions>
+            
             <StackPanel Grid.Row="0" 
                         Orientation="Vertical"
                         IsEnabled="{Binding IsReading,Converter={local:InverseBoolConverter}}" >
@@ -128,14 +138,15 @@
             <Border Grid.Row="1">
                 <TextBlock Text="Log:" 
                        Margin="25 0 0 0"/>
-                
             </Border>
 
+            <!-- Log list -->
             <ListBox Grid.Row="2" 
                      ItemsSource="{Binding ScriptFilePaths}"
                      Margin="25 0 25 0"
                      VerticalAlignment="Stretch"/>
 
+            <!-- Results of reading -->
             <Border Grid.Row="3"
                     Margin="25 10 25 20"
                     Padding="5 0 0 0"

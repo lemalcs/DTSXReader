@@ -25,7 +25,7 @@ namespace DTSXExplorer
         /// SQL statement to create the table where DTSX content will be inserted.
         /// This script works for SQL Server database.
         /// </summary>
-        private const string SQL_SCRIPT_TABLE_CREATION = 
+        private const string SQL_SCRIPT_TABLE_CREATION =
             @"/*
 CREATE TABLE DTSX_INFO(
 DTSX_ID INT,
@@ -47,7 +47,7 @@ LINKED_ITEM_TYPE VARCHAR(200)
 
             string scriptFilePath = Path.Combine(destinationFile, SQL_SCRIPT_FILE_NAME);
 
-            if(File.Exists(scriptFilePath))
+            if (File.Exists(scriptFilePath))
                 RenameExistingFile(scriptFilePath);
 
             using (StreamWriter sw = new StreamWriter(scriptFilePath))
@@ -69,7 +69,7 @@ LINKED_ITEM_TYPE VARCHAR(200)
 
             if (counter == 1)
             {
-                if(File.Exists(scriptFilePath))
+                if (File.Exists(scriptFilePath))
                     RenameExistingFile(scriptFilePath);
             }
 
@@ -101,17 +101,17 @@ LINKED_ITEM_TYPE VARCHAR(200)
                 foreach (string path in childDirectories)
                 {
                     List<string> scriptsList = ExportToFiles(path, destinationFolder);
-                    foreach(string script in scriptsList)
+                    foreach (string script in scriptsList)
                     {
-                        if(!outputScripFiles.Contains(script))
+                        if (!outputScripFiles.Contains(script))
                         {
-                            outputScripFiles.Add(script);                        
+                            outputScripFiles.Add(script);
                         }
                     }
                 }
             }
 
-            return outputScripFiles; 
+            return outputScripFiles;
         }
 
         /// <summary>

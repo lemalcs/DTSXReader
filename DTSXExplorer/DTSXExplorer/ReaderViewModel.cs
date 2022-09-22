@@ -112,29 +112,29 @@ namespace DTSXExplorer
                 }
             }
         }
-        public bool IsReading 
-        { 
+        public bool IsReading
+        {
             get => isReading;
-            set 
-            { 
-                if(isReading != value)
+            set
+            {
+                if (isReading != value)
                 {
                     isReading = value;
                     OnPropertyChanged(nameof(IsReading));
-                }; 
+                };
             }
         }
-        public ObservableCollection<string> ScriptFilePaths 
-        { 
+        public ObservableCollection<string> ScriptFilePaths
+        {
             get => scriptFilePaths;
-            private set 
-            { 
-                if(scriptFilePaths != value)
+            private set
+            {
+                if (scriptFilePaths != value)
                 {
                     scriptFilePaths = value;
                     OnPropertyChanged(nameof(ScriptFilePaths));
                 }
-            } 
+            }
         }
 
         #endregion
@@ -158,7 +158,7 @@ namespace DTSXExplorer
         /// </summary>
 		private void ReadPackage()
         {
-            if(ScriptFilePaths != null)
+            if (ScriptFilePaths != null)
                 ScriptFilePaths.Clear();
             else
                 ScriptFilePaths = new ObservableCollection<string>();
@@ -174,7 +174,7 @@ namespace DTSXExplorer
             {
                 IPackageProcessor packageProcessor = new SQLScriptPackageProcessor();
                 IsReading = true;
-               
+
                 if (SingleFile)
                     e.Result = packageProcessor.Export(SourcePath, DestinationPath);
                 else
