@@ -24,9 +24,24 @@ Before executing a script you may need to create the target table if it doesn't 
 
 If you need to execute the scripts for other relational databases that support SQL language then you may need to remove the `begin tran` and `commit tran` statements.
 
+Here is the table definition where the content of DTSXs will be inserted:
+```sql
+create table dtsx_info(
+    dtsx_id int,
+    dtsx_path nvarchar(2000),
+    dtsx_name varchar(200),
+    item_id int,
+    item_type varchar(200),
+    field_id int,
+    field_name varchar(200),
+    value varchar(max),
+    linked_item_type varchar(200)
+)
+```
+
 ## Examples of queries
 
-Once a DTSX file is loaded to the table you can run queries to gather any king of information.
+Once a DTSX file is loaded to the table you can run queries to gather any kind of information.
 
 **A. Get sql queries from SQL Tasks**
 
@@ -41,7 +56,7 @@ and field_name='SQLTask:SqlStatementSource'
 
 **B. Get comments**
 
-This query work for Integration Services 2012 and later:
+This query works for Integration Services 2012 and later:
 ```sql
 select dtsx_id,dtsx_name,value as comments 
 from dtsx_info
@@ -53,7 +68,7 @@ and field_name='Text'
 
 **C. Get variables**
 
-This query only works for Integration Services 2005 and Integration Services 2008:
+This query works for Integration Services 2005 and Integration Services 2008:
 
 ```sql
 select dt.dtsx_id,dt.dtsx_name,actualname.value as variable_name
@@ -88,7 +103,6 @@ and field_name='DTS:ObjectName'
 
 **D. Get email addresses**
 
-These queries work for Integration Services 2012 and later:
 ```sql
 -- FROM field
 select distinct dtsx_id,dtsx_name,value as FROM_email_address
@@ -117,7 +131,7 @@ and field_name='SendMailTask:BCC'
 
 **E. Get connection strings**
 
-This query only works for Integration Services 2005 and Integration Services 2008:
+This query works for Integration Services 2005 and Integration Services 2008:
 ```sql
 select d.dtsx_id,d.dtsx_name,string.value as connection_string
 from dtsx_info d join dtsx_info conn
@@ -171,4 +185,4 @@ and conntype.field_name='DTS:CreationName'
 
 **How to get more about content of a DTSX?**
 
-To retrieve more information such as data flow tasks, creator name, script tasks; you can open the DTSX file with a text editor and read the inner XML in order to write a query that fits your needs, the queries listed above can give guidelines of how to write them.
+To retrieve more information such as data flow tasks, creator name, script tasks; you can open the DTSX file with a text editor and read the inner XML in order to write a query that fits your needs, the queries listed above can give you guidelines of how to write them.
