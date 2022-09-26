@@ -64,6 +64,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BaseValueConverter.cs" />
+    <Compile Include="IExporterObservable.cs" />
+    <Compile Include="IExporterObserver.cs" />
     <Compile Include="InverseBoolConverter.cs" />
     <Compile Include="ReaderViewModel.cs" />
     <Compile Include="RelayCommand.cs" />

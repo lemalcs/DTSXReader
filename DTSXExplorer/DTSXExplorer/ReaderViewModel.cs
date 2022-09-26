@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -9,7 +8,7 @@ namespace DTSXExplorer
     /// <summary>
     /// The view model for DTSX reader main window.
     /// </summary>
-    internal class ReaderViewModel : BaseModel
+    internal class ReaderViewModel : BaseModel, IExporterObserver
     {
         #region Properties
 
@@ -149,14 +148,20 @@ namespace DTSXExplorer
             worker = new BackgroundWorker();
             worker.DoWork += Worker_DoWork;
             worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
+            worker.ProgressChanged += Worker_ProgressChanged;
             ReadCommand = new RelayCommand(ReadPackage);
             SingleFile = true;
+        }
+
+        private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            ScriptFilePaths.Add($"Id - [{((ExportedDTSX)e.UserState).Id}] - Input file: \"{((ExportedDTSX)e.UserState).DTSXSourcePath}\" - Output file: \"{((ExportedDTSX)e.UserState).OutputFilePath}\"");
         }
 
         /// <summary>
         /// Read the DTSX files.
         /// </summary>
-		private void ReadPackage()
+        private void ReadPackage()
         {
             if (ScriptFilePaths != null)
                 ScriptFilePaths.Clear();
@@ -164,6 +169,7 @@ namespace DTSXExplorer
                 ScriptFilePaths = new ObservableCollection<string>();
 
             ScriptFilePaths.Add($"Start time: {DateTime.Now.ToLongTimeString()}");
+            worker.WorkerReportsProgress = true;
             worker.RunWorkerAsync();
             ResultMessage = "Reading...";
         }
@@ -174,6 +180,8 @@ namespace DTSXExplorer
             {
                 IPackageProcessor packageProcessor = new SQLScriptPackageProcessor();
                 IsReading = true;
+
+                ((SQLScriptPackageProcessor)packageProcessor).Subscribe(this);
 
                 if (SingleFile)
                     e.Result = packageProcessor.Export(SourcePath, DestinationPath);
@@ -201,20 +209,19 @@ namespace DTSXExplorer
 
                 if (e.Result is string)
                 {
-                    ScriptFilePaths.Add($"Output file: {e.Result.ToString()}");
                     ResultMessage = $"Data exported to file: {e.Result.ToString()}";
                 }
                 else
                 {
-                    List<string> filePaths = (List<string>)e.Result;
-                    foreach (string filePath in filePaths)
-                    {
-                        ScriptFilePaths.Add($"Output file: {filePath}");
-                    }
                     ResultMessage = $"Data exported to folder: {DestinationPath}";
                 }
             }
             ScriptFilePaths.Add($"End time: {DateTime.Now.ToLongTimeString()}");
+        }
+
+        public void OnDTSXExported(ExportedDTSX exportedDTSX)
+        {
+            worker.ReportProgress(0, exportedDTSX);
         }
     }
 }

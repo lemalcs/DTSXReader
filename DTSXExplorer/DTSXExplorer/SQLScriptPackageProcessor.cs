@@ -4,12 +4,19 @@ using System.IO;
 
 namespace DTSXExplorer
 {
-    internal class SQLScriptPackageProcessor : IPackageProcessor
+    internal class SQLScriptPackageProcessor : IPackageProcessor, IExporterObservable
     {
         /// <summary>
         /// The current number of read DTSX files.
         /// </summary>
         private int counter = 1;
+
+        private bool disposedValue;
+
+        /// <summary>
+        /// The list of observers to notify to about current exported DTSX files.
+        /// </summary>
+        private List<IExporterObserver> observersList;
 
         /// <summary>
         /// The name of script files when reading multiple DTSX files.
@@ -60,6 +67,8 @@ LINKED_ITEM_TYPE VARCHAR(200)
                 }
             }
 
+            OnExportedDTSX(new ExportedDTSX(1, packagePath, scriptFilePath));
+
             return scriptFilePath;
         }
 
@@ -91,6 +100,8 @@ LINKED_ITEM_TYPE VARCHAR(200)
                         sw.WriteLine($"values({counter},'{Path.GetDirectoryName(dtsxFiles[i]).Replace("'", "''")}','{item.DTSXName.Replace("'", "''")}',{item.ItemId},'{item.ItemType}',{item.FieldId},'{item.FieldName}','{item.Value.Replace("'", "''").Replace("\n", "\r\n")}','{item.LinkedItemType}')");
                     }
                     sw.WriteLine("commit tran");
+
+                    OnExportedDTSX(new ExportedDTSX(counter, dtsxFiles[i], scriptFilePath));
                     counter++;
                 }
             }
@@ -146,6 +157,55 @@ LINKED_ITEM_TYPE VARCHAR(200)
             {
                 throw;
             }
+        }
+
+        #region IExporterObservable members
+
+        public void Subscribe(IExporterObserver observer)
+        {
+            if (observersList == null)
+                observersList = new List<IExporterObserver>();
+
+            if (observer == null)
+                throw new ArgumentNullException($"{nameof(observer)} parameter cannot be null.");
+
+            observersList.Add(observer);
+        }
+
+        public void UnSubscribe(IExporterObserver observer)
+        {
+            if (observersList != null)
+                observersList.Remove(observer);
+        }
+
+        #endregion
+
+        private void OnExportedDTSX(ExportedDTSX exportedDTSX)
+        {
+            foreach (IExporterObserver observer in observersList)
+            {
+                observer.OnDTSXExported(exportedDTSX);
+            }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    observersList.Clear();
+                    observersList = null;
+                }
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
