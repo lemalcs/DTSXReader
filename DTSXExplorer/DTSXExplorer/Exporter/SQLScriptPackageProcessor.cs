@@ -111,7 +111,7 @@ LINKED_ITEM_TYPE VARCHAR(200)
                     }
                 }
             }
-            
+
 
             string[] childDirectories = Directory.GetDirectories(packagePathsList);
             if (childDirectories.Length > 0)
