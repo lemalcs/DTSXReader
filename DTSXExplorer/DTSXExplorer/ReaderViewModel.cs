@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -211,9 +212,12 @@ namespace DTSXExplorer
                 {
                     ResultMessage = $"Data exported to file: {e.Result.ToString()}";
                 }
-                else
+                else if (e.Result is List<string>)
                 {
-                    ResultMessage = $"Data exported to folder: {DestinationPath}";
+                    if (((List<string>)e.Result).Count > 0)
+                        ResultMessage = $"Data exported to folder: {DestinationPath}";
+                    else
+                        ResultMessage = $"No DTSX files found on path: {SourcePath}";
                 }
             }
             ScriptFilePaths.Add($"End time: {DateTime.Now.ToLongTimeString()}");

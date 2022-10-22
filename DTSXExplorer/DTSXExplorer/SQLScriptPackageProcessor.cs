@@ -74,37 +74,44 @@ LINKED_ITEM_TYPE VARCHAR(200)
 
         public List<string> ExportToFiles(string packagePathsList, string destinationFolder)
         {
-            string scriptFilePath = Path.Combine(destinationFolder, $"{counter.ToString()}_{SQL_SCRIPT_PACKAGE_LIST_NAME}");
+            string[] dtsxFiles = Directory.GetFiles(packagePathsList, "*.dtsx");
 
-            if (counter == 1)
+            List<string> outputScripFiles = new List<string>();
+
+            if (dtsxFiles != null && dtsxFiles.Length > 0)
             {
-                if (File.Exists(scriptFilePath))
-                    RenameExistingFile(scriptFilePath);
-            }
+                string scriptFilePath = Path.Combine(destinationFolder, $"{counter.ToString()}_{SQL_SCRIPT_PACKAGE_LIST_NAME}");
 
-            List<string> outputScripFiles = new List<string> { scriptFilePath };
-
-            using (StreamWriter sw = new StreamWriter(scriptFilePath))
-            {
-                sw.WriteLine(SQL_SCRIPT_TABLE_CREATION);
-
-                string[] dtsxFiles = Directory.GetFiles(packagePathsList, "*.dtsx");
-                for (int i = 0; i < dtsxFiles.Length; i++)
+                if (counter == 1)
                 {
-                    DTSXReader reader = new DTSXReader();
-                    var itemList = reader.Read(dtsxFiles[i]);
-                    sw.WriteLine("begin tran");
-                    foreach (var item in itemList)
-                    {
-                        sw.WriteLine($"insert into dtsx_info(dtsx_id,dtsx_path,dtsx_name,item_id,item_type,field_id,field_name,value,linked_item_type)");
-                        sw.WriteLine($"values({counter},'{Path.GetDirectoryName(dtsxFiles[i]).Replace("'", "''")}','{item.DTSXName.Replace("'", "''")}',{item.ItemId},'{item.ItemType}',{item.FieldId},'{item.FieldName}','{item.Value.Replace("'", "''").Replace("\n", "\r\n")}','{item.LinkedItemType}')");
-                    }
-                    sw.WriteLine("commit tran");
+                    if (File.Exists(scriptFilePath))
+                        RenameExistingFile(scriptFilePath);
+                }
 
-                    OnExportedDTSX(new ExportedDTSX(counter, dtsxFiles[i], scriptFilePath));
-                    counter++;
+                outputScripFiles.Add(scriptFilePath);
+
+                using (StreamWriter sw = new StreamWriter(scriptFilePath))
+                {
+                    sw.WriteLine(SQL_SCRIPT_TABLE_CREATION);
+
+                    for (int i = 0; i < dtsxFiles.Length; i++)
+                    {
+                        DTSXReader reader = new DTSXReader();
+                        var itemList = reader.Read(dtsxFiles[i]);
+                        sw.WriteLine("begin tran");
+                        foreach (var item in itemList)
+                        {
+                            sw.WriteLine($"insert into dtsx_info(dtsx_id,dtsx_path,dtsx_name,item_id,item_type,field_id,field_name,value,linked_item_type)");
+                            sw.WriteLine($"values({counter},'{Path.GetDirectoryName(dtsxFiles[i]).Replace("'", "''")}','{item.DTSXName.Replace("'", "''")}',{item.ItemId},'{item.ItemType}',{item.FieldId},'{item.FieldName}','{item.Value.Replace("'", "''").Replace("\n", "\r\n")}','{item.LinkedItemType}')");
+                        }
+                        sw.WriteLine("commit tran");
+
+                        OnExportedDTSX(new ExportedDTSX(counter, dtsxFiles[i], scriptFilePath));
+                        counter++;
+                    }
                 }
             }
+            
 
             string[] childDirectories = Directory.GetDirectories(packagePathsList);
             if (childDirectories.Length > 0)
