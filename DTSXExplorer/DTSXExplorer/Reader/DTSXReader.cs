@@ -13,11 +13,6 @@ namespace DTSXExplorer
     {
         #region Properties
         /// <summary>
-        /// Contains the counters per elements into a DTSX.
-        /// </summary>
-        private Dictionary<string, int> elementCounters = new Dictionary<string, int>();
-
-        /// <summary>
         /// Contains the whole structure of a DTSX.
         /// </summary>
         private List<DTSXItem> items = new List<DTSXItem>();
@@ -31,12 +26,6 @@ namespace DTSXExplorer
         /// The number of elements of a DTSX.
         /// </summary>
         private int itemCounter = 0;
-
-        public Dictionary<string, int> ElementCounters
-        {
-            get => elementCounters;
-            private set => elementCounters = value;
-        }
 
         #endregion
 
@@ -69,10 +58,7 @@ namespace DTSXExplorer
 
             using (XmlReader reader = XmlReader.Create(stream, settings))
             {
-                int currentDepth = -1;
-                string currentParent = string.Empty;
                 Stack<Element> parentStack = new Stack<Element>();
-
 
                 while (reader.Read())
                 {
@@ -84,12 +70,14 @@ namespace DTSXExplorer
                             if (parentStack.Count > 0)
                             {
                                 parentStack.Peek().ChildrenCount++;
-                                var currentFieldId = items.Where(x => x.ItemId == parentStack.Peek().Id).Select(x => x.FieldId).Max();
+
+                                // Add entry for child
+                                int currentFieldId = items.Where(x => x.ItemId == parentStack.Peek().ItemDetail.ItemId).Select(x => x.FieldId).Max();
                                 childItem = new DTSXItem
                                 {
                                     DTSXName = DTSXName,
-                                    ItemId = parentStack.Peek().Id,
-                                    ItemType = parentStack.Peek().Name,
+                                    ItemId = parentStack.Peek().ItemDetail.ItemId,
+                                    ItemType = parentStack.Peek().ItemDetail.ItemType,
                                     FieldId = currentFieldId + 1,
                                     FieldName = "_child_",
                                     Value = "",
@@ -100,6 +88,7 @@ namespace DTSXExplorer
 
                             itemCounter++;
 
+                            // Add entry for parent
                             DTSXItem newItem = new DTSXItem
                             {
                                 DTSXName = DTSXName,
@@ -107,8 +96,8 @@ namespace DTSXExplorer
                                 ItemType = reader.Name,
                                 FieldId = 0,
                                 FieldName = "_parent_id",
-                                Value = (parentStack.Count > 0 ? parentStack.Peek().Id : 0).ToString(),
-                                LinkedItemType = parentStack.Count > 0 ? parentStack.Peek().Name : "root"
+                                Value = (parentStack.Count > 0 ? parentStack.Peek().ItemDetail.ItemId : 0).ToString(),
+                                LinkedItemType = parentStack.Count > 0 ? parentStack.Peek().ItemDetail.ItemType : "root"
                             };
                             items.Add(newItem);
 
@@ -117,37 +106,32 @@ namespace DTSXExplorer
 
                             if (!reader.IsEmptyElement)
                             {
-                                parentStack.Push(new Element { Name = reader.Name, ChildrenCount = 0, Id = itemCounter, ItemDetail = newItem });
+                                parentStack.Push(new Element { ChildrenCount = 0, ItemDetail = newItem });
                             }
 
-                            bool isEmptyElement = reader.IsEmptyElement;
-
-                            currentDepth = reader.Depth;
-                            IncreaseCounterForElement(reader.Name);
                             GetAtributes(reader);
 
                             break;
                         case XmlNodeType.Text:
                             parentStack.Peek().ChildrenCount++;
 
-                            currentDepth = reader.Depth;
-
                             // Add an entry for new item
                             itemCounter++;
 
                             // Add an entry for child
+                            int parentFieldId = items.Where(x => x.ItemId == parentStack.Peek().ItemDetail.ItemId).Select(x => x.FieldId).Max();
                             items.Add(new DTSXItem
                             {
                                 DTSXName = DTSXName,
                                 ItemId = parentStack.Peek().ItemDetail.ItemId,
                                 ItemType = parentStack.Peek().ItemDetail.ItemType,
-                                FieldId = parentStack.Peek().ItemDetail.FieldId + 1,
+                                FieldId = parentFieldId + 1,
                                 FieldName = "_child_",
                                 Value = itemCounter.ToString(),
                                 LinkedItemType = "TEXT"
                             });
 
-
+                            // Add an entry for parent
                             items.Add(new DTSXItem
                             {
                                 DTSXName = DTSXName,
@@ -165,7 +149,7 @@ namespace DTSXExplorer
                                 DTSXName = DTSXName,
                                 ItemId = itemCounter,
                                 ItemType = "TEXT",
-                                FieldId = 0,
+                                FieldId = 1,
                                 FieldName = "value",
                                 Value = reader.Value
                             });
@@ -191,24 +175,23 @@ namespace DTSXExplorer
                             }
                             catch (XmlException)
                             {
-                                currentDepth = reader.Depth;
-
                                 // Add an entry for new item
                                 itemCounter++;
 
                                 // Add an entry for child
+                                int textParentFieldId = items.Where(x => x.ItemId == parentStack.Peek().ItemDetail.ItemId).Select(x => x.FieldId).Max();
                                 items.Add(new DTSXItem
                                 {
                                     DTSXName = DTSXName,
                                     ItemId = parentStack.Peek().ItemDetail.ItemId,
                                     ItemType = parentStack.Peek().ItemDetail.ItemType,
-                                    FieldId = parentStack.Peek().ItemDetail.FieldId + 1,
+                                    FieldId = textParentFieldId + 1,
                                     FieldName = "_child_",
                                     Value = itemCounter.ToString(),
                                     LinkedItemType = "TEXT"
                                 });
 
-
+                                // Add an entry for parent
                                 items.Add(new DTSXItem
                                 {
                                     DTSXName = DTSXName,
@@ -226,7 +209,7 @@ namespace DTSXExplorer
                                     DTSXName = DTSXName,
                                     ItemId = itemCounter,
                                     ItemType = "TEXT",
-                                    FieldId = 0,
+                                    FieldId = 1,
                                     FieldName = "value",
                                     Value = reader.Value
                                 });
@@ -240,21 +223,6 @@ namespace DTSXExplorer
             }
 
             return items;
-        }
-
-        /// <summary>
-        /// Increase the counter of elements found in the XML document.
-        /// </summary>
-        /// <param name="element">The element to count from.</param>
-        /// <returns>The number of current counter for the element.</returns>
-        private int IncreaseCounterForElement(string element)
-        {
-            if (ElementCounters.ContainsKey(element))
-                ElementCounters[element]++;
-            else
-                ElementCounters.Add(element, 1);
-
-            return ElementCounters[element];
         }
 
         /// <summary>

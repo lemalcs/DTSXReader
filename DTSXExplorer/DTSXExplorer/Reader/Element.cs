@@ -5,14 +5,6 @@
     /// </summary>
     internal class Element
     {
-        // The identifier assigned to Element 
-        public int Id { get; set; }
-
-        /// <summary>
-        /// The name of XML element.
-        /// </summary>
-        public string Name { get; set; }
-
         /// <summary>
         /// The current number of children.
         /// </summary>
