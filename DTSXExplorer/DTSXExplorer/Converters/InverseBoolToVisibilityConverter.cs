@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Globalization;
+using System.Windows;
 
 namespace DTSXExplorer
 {
     /// <summary>
-    /// Returns inverse value <see cref="bool"/> variable.
+    /// Returns a <see cref="Visibility.Visible"/> value when source (<see cref="bool"/>) is true otherwise returns <see cref="Visibility.Hidden"/>.
     /// </summary>
-    public class InverseBoolConverter : BaseValueConverter<InverseBoolConverter>
+    public class InverseBoolToVisibilityConverter : BaseValueConverter<InverseBoolToVisibilityConverter>
     {
         public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            bool val = (bool)value;
-
-            return !val;
+            return !(bool)value ? Visibility.Visible : Visibility.Hidden;
         }
 
         public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

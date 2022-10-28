@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Windows.Input;
 
 namespace DTSXExplorer
@@ -48,7 +48,17 @@ namespace DTSXExplorer
         /// </summary>
         private bool isReading;
 
+        /// <summary>
+        /// Destination type for DTSX files.
+        /// </summary>
+        private ExportDestination destinationType;
+
         private ObservableCollection<string> scriptFilePaths;
+
+        /// <summary>
+        /// The connection properties used to connect to a SQL Server instance.
+        /// </summary>
+        private SQLServerAuthenticationViewModel connectionProperties;
 
         public string SourcePath
         {
@@ -124,6 +134,7 @@ namespace DTSXExplorer
                 };
             }
         }
+
         public ObservableCollection<string> ScriptFilePaths
         {
             get => scriptFilePaths;
@@ -133,6 +144,40 @@ namespace DTSXExplorer
                 {
                     scriptFilePaths = value;
                     OnPropertyChanged(nameof(ScriptFilePaths));
+                }
+            }
+        }
+
+        public ExportDestination DestinationType
+        {
+            get => destinationType;
+            set
+            {
+                if (destinationType != value)
+                {
+                    destinationType = value;
+                    OnPropertyChanged(nameof(DestinationType));
+
+                    // Clear the destination field when destination type is changed
+                    // in order to set a new value
+                    DestinationPath = string.Empty;
+                    ConnectionProperties = null;
+                }
+            }
+        }
+        public SQLServerAuthenticationViewModel ConnectionProperties
+        {
+            get => connectionProperties;
+            set
+            {
+                if (connectionProperties != value)
+                {
+                    connectionProperties = value;
+                    OnPropertyChanged(nameof(ConnectionProperties));
+
+                    // Do not show user credentials on DestinationPath field
+                    if (connectionProperties != null)
+                        DestinationPath = $"Server={ConnectionProperties.ServerName}; Database={ConnectionProperties.DatabaseName}";
                 }
             }
         }
@@ -152,11 +197,16 @@ namespace DTSXExplorer
             worker.ProgressChanged += Worker_ProgressChanged;
             ReadCommand = new RelayCommand(ReadPackage);
             SingleFile = true;
+            DestinationType = ExportDestination.FileSystem;
         }
 
         private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            ScriptFilePaths.Add($"Id - [{((ExportedDTSX)e.UserState).Id}] - Input file: \"{((ExportedDTSX)e.UserState).DTSXSourcePath}\" - Output file: \"{((ExportedDTSX)e.UserState).OutputFilePath}\"");
+            // Show information about the current processed DTSX file
+            if (DestinationType == ExportDestination.FileSystem)
+                ScriptFilePaths.Add($"Id - [{((ExportedDTSX)e.UserState).Id}] - Input file: \"{((ExportedDTSX)e.UserState).DTSXSourcePath}\" - Output file: \"{((ExportedDTSX)e.UserState).OutputLocation}\"");
+            else
+                ScriptFilePaths.Add($"Id - [{((ExportedDTSX)e.UserState).Id}] - Input file: \"{((ExportedDTSX)e.UserState).DTSXSourcePath}\" - Output: \"{DestinationPath}\"");
         }
 
         /// <summary>
@@ -177,21 +227,39 @@ namespace DTSXExplorer
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
+            IPackageProcessor packageProcessor = null;
             try
             {
-                IPackageProcessor packageProcessor = new SQLScriptPackageProcessor();
+                if (DestinationType == ExportDestination.FileSystem)
+                    packageProcessor = new SQLScriptPackageProcessor();
+                else
+                    packageProcessor = new SQLServerPackageProcessor();
+
                 IsReading = true;
 
-                ((SQLScriptPackageProcessor)packageProcessor).Subscribe(this);
+                ((IExporterObservable)packageProcessor).Subscribe(this);
 
+                // Set the connection string for destination
+                string connectionString = null;
+                if (DestinationType == ExportDestination.FileSystem)
+                    connectionString = DestinationPath;
+                else if (ConnectionProperties != null)
+                    connectionString = ConnectionProperties.GetConnectionString();
+
+                // Start to export DTSX files
                 if (SingleFile)
-                    e.Result = packageProcessor.Export(SourcePath, DestinationPath);
+                    e.Result = packageProcessor.Export(SourcePath, connectionString);
                 else
-                    e.Result = packageProcessor.ExportToFiles(SourcePath, DestinationPath);
+                    e.Result = packageProcessor.ExportToFiles(SourcePath, connectionString);
             }
             catch (Exception)
             {
                 throw;
+            }
+            finally
+            {
+                if (packageProcessor != null)
+                    ((IExporterObservable)packageProcessor).UnSubscribe(this);
             }
         }
 
@@ -208,16 +276,16 @@ namespace DTSXExplorer
                 if (ScriptFilePaths == null)
                     ScriptFilePaths = new ObservableCollection<string>();
 
-                if (e.Result is string)
+                int readFiles = (int)e.Result;
+
+                if (readFiles > 0)
                 {
-                    ResultMessage = $"Data exported to file: {e.Result.ToString()}";
+                    ResultMessage = DestinationType == ExportDestination.FileSystem ?
+                                    $"Data exported to: {DestinationPath}" : $"Data exported to: {DestinationPath}";
                 }
-                else if (e.Result is List<string>)
+                else
                 {
-                    if (((List<string>)e.Result).Count > 0)
-                        ResultMessage = $"Data exported to folder: {DestinationPath}";
-                    else
-                        ResultMessage = $"No DTSX files found on path: {SourcePath}";
+                    ResultMessage = $"No DTSX files found on path: {SourcePath}";
                 }
             }
             ScriptFilePaths.Add($"End time: {DateTime.Now.ToLongTimeString()}");
@@ -226,6 +294,14 @@ namespace DTSXExplorer
         public void OnDTSXExported(ExportedDTSX exportedDTSX)
         {
             worker.ReportProgress(0, exportedDTSX);
+
+            // Set destination path to the directory of the exported files
+            // when there is no destination path configured
+            if (DestinationType == ExportDestination.FileSystem && string.IsNullOrEmpty(DestinationPath))
+            {
+                DestinationPath = Path.GetDirectoryName(exportedDTSX.OutputLocation);
+            }
+
         }
     }
 }

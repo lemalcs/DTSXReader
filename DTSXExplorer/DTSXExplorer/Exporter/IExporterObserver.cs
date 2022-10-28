@@ -1,5 +1,8 @@
 ﻿namespace DTSXExplorer
 {
+    /// <summary>
+    /// Details about exported DTSX files.
+    /// </summary>
     internal class ExportedDTSX
     {
         /// <summary>
@@ -14,16 +17,19 @@
         /// <summary>
         /// The path of exported file which contains the content of DTSX files.
         /// </summary>
-        public string OutputFilePath { get; private set; }
+        public string OutputLocation { get; private set; }
 
-        public ExportedDTSX(int id, string dTSXSourcePath, string outputFilePath)
+        public ExportedDTSX(int id, string dTSXSourcePath, string outputLocation)
         {
             Id = id;
             DTSXSourcePath = dTSXSourcePath;
-            OutputFilePath = outputFilePath;
+            OutputLocation = outputLocation;
         }
     }
 
+    /// <summary>
+    /// Receives notifications about exported DTSX files.
+    /// </summary>
     internal interface IExporterObserver
     {
         /// <summary>

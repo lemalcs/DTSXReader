@@ -1,0 +1,126 @@
+﻿<Window x:Class="DTSXExplorer.SQLServerConnectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DTSXExplorer"
+        mc:Ignorable="d"
+        Title="SQL Server connection" 
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Name="SQLConnectionWindow"
+        Height="420" 
+        WindowStyle="ToolWindow"
+        Width="400">
+    <Grid Margin="20"
+          IsEnabled="{Binding IsConnecting,Converter={local:InverseBoolConverter}}">
+        <Grid.RowDefinitions>
+            <!-- SQL Server instance -->
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            
+            <!-- Database name -->
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            
+            <!-- Authentication type -->
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+
+            <!-- Credential of user -->
+            <RowDefinition Height="Auto"/>
+
+            <!-- Test connection button -->
+            <RowDefinition Height="Auto"/>
+
+            <!-- Connection test result -->
+            <RowDefinition Height="Auto"/>
+
+            <!-- OK/Cancel buttons -->
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- SQL Server instance name -->
+        <TextBlock Grid.Row="0" 
+                   Text="Server name:"/>
+        <TextBox Grid.Row="1"
+                 Text="{Binding ServerName}"/>
+
+        <!-- Database name -->
+        <TextBlock Grid.Row="2" 
+                   Text="Database name:"
+                   Margin="0 15 0 0"/>
+        <TextBox Grid.Row="3"
+                 Text="{Binding DatabaseName}"/>
+
+        <!-- Authentication type -->
+        <TextBlock Grid.Row="4" 
+                   Margin="0 15 0 0"
+                   Text="Authentication type:"/>
+        
+        <!-- Authentication options for SQL Server -->
+        <ComboBox Grid.Row="5"
+                  x:Name="combo_Authetication_Type"
+                  SelectedIndex="{Binding Authentication, Converter={local:AuthenticationTypeToIndexConverter}}"
+                  SelectionChanged="combo_Authetication_Type_SelectionChanged">
+            <ComboBoxItem Content="Windows"/>
+            <ComboBoxItem Content="SQL Server"/>
+        </ComboBox>
+
+        <!-- Credential of user -->
+        <StackPanel Grid.Row="6"
+                    Margin="10 0 0 0"
+                    IsEnabled="{Binding SelectedIndex,ElementName=combo_Authetication_Type}">
+            
+            <!-- User name-->
+            <TextBlock Text="User name:"
+                       Margin="0 5 0 0"/>
+            <TextBox Text="{Binding UserName}"/>
+            
+            <!-- Password -->
+            <TextBlock Text="Password:"
+                       Margin="0 10 0 0"/>
+            <PasswordBox Name="txt_Password"/>
+        </StackPanel>
+        
+        <!-- Test connection button -->
+        <Button Grid.Row="7"
+                Content="Test connection"
+                Width="200"
+                Margin="15"
+                Command="{Binding TestConnectionCommand}"
+                CommandParameter="{Binding ElementName=SQLConnectionWindow}"/>
+
+        <!-- Message about the connection test result -->
+        <Border Grid.Row="8"
+                Margin="0 0 0 0">
+            <StackPanel>
+                <ProgressBar Visibility="{Binding IsConnecting,Converter={local:BoolToVisibilityConverter}}" 
+                             IsIndeterminate="True"
+                             Height="10"/>
+                <TextBlock Text="{Binding ConnectionResult}"
+                           Visibility="{Binding IsConnecting,Converter={local:InverseBoolToVisibilityConverter}}"
+                           Height="40"
+                           FontWeight="Bold"/>
+            </StackPanel>
+        </Border>
+        
+        <!-- OK/Cancel buttons -->
+        <StackPanel Grid.Row="9"
+                    Orientation="Horizontal"
+                    Margin="0 10 0 0"
+                    HorizontalAlignment="Right">
+            
+            <Button Content="OK"
+                    Width="100"
+                    Click="btn_OK_Click"
+                    Command="{Binding SetPasswordCommand}"
+                    CommandParameter="{Binding ElementName=SQLConnectionWindow}"/>
+            <Button Content="Cancel"
+                    Width="100"
+                    Margin="10 0 0 0"
+                    Click="btn_Cancel_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -4,15 +4,11 @@ using System.IO;
 
 namespace DTSXExplorer
 {
+    /// <summary>
+    /// Export DTSX files to SQL scripts.
+    /// </summary>
     internal class SQLScriptPackageProcessor : IPackageProcessor, IExporterObservable
     {
-        /// <summary>
-        /// The current number of read DTSX files.
-        /// </summary>
-        private int counter = 1;
-
-        private bool disposedValue;
-
         /// <summary>
         /// The list of observers to notify to about current exported DTSX files.
         /// </summary>
@@ -34,33 +30,45 @@ namespace DTSXExplorer
         /// </summary>
         private const string SQL_SCRIPT_TABLE_CREATION =
             @"/*
-CREATE TABLE DTSX_INFO(
-DTSX_ID INT,
-DTSX_PATH NVARCHAR(2000),
-DTSX_NAME VARCHAR(200),
-ITEM_ID INT,
-ITEM_TYPE VARCHAR(200),
-FIELD_ID INT,
-FIELD_NAME VARCHAR(200),
-VALUE VARCHAR(MAX),
-LINKED_ITEM_TYPE VARCHAR(200)
+create table dtsx_info(
+dtsx_id int,
+dtsx_path nvarchar(2000),
+dtsx_name varchar(200),
+item_id int,
+item_type varchar(200),
+field_id int,
+field_name varchar(200),
+value varchar(max),
+linked_item_type varchar(200)
 )
 */";
 
-        public string Export(string packagePath, string destinationFile)
+        /// <summary>
+        /// Export a DTSX file to a SQL script (SQL Server compatible).
+        /// </summary>
+        /// <param name="packagePath">The path of DTSX file.</param>
+        /// <param name="destinationConnectionString">The path of folder where the script will be saved.</param>
+        /// <returns>The number of DTSX files read.</returns>
+        public int Export(string packagePath, string destinationConnectionString)
         {
             DTSXReader reader = new DTSXReader();
-            var itemList = reader.Read(packagePath);
+            List<DTSXItem> itemList = reader.Read(packagePath);
 
-            string scriptFilePath = Path.Combine(destinationFile, SQL_SCRIPT_FILE_NAME);
+            // When destination folder is empty, the SQL script will
+            // be saved in the same location as the executable (.exe)
+            if (string.IsNullOrEmpty(destinationConnectionString))
+                destinationConnectionString = Environment.CurrentDirectory;
+
+            string scriptFilePath = Path.Combine(destinationConnectionString, SQL_SCRIPT_FILE_NAME);
 
             if (File.Exists(scriptFilePath))
                 RenameExistingFile(scriptFilePath);
 
+            int counter = 1;
             using (StreamWriter sw = new StreamWriter(scriptFilePath))
             {
                 sw.WriteLine(SQL_SCRIPT_TABLE_CREATION);
-                foreach (var item in itemList)
+                foreach (DTSXItem item in itemList)
                 {
                     sw.WriteLine($"insert into dtsx_info(dtsx_id,dtsx_path,dtsx_name,item_id,item_type,field_id,field_name,value,linked_item_type)");
                     sw.WriteLine($"values({counter},'{Path.GetDirectoryName(packagePath).Replace("'", "''")}','{item.DTSXName.Replace("'", "''")}',{item.ItemId},'{item.ItemType}',{item.FieldId},'{item.FieldName}','{item.Value.Replace("'", "''").Replace("\n", "\r\n")}','{item.LinkedItemType}')");
@@ -69,26 +77,37 @@ LINKED_ITEM_TYPE VARCHAR(200)
 
             OnExportedDTSX(new ExportedDTSX(1, packagePath, scriptFilePath));
 
-            return scriptFilePath;
+            return counter;
         }
 
-        public List<string> ExportToFiles(string packagePathsList, string destinationFolder)
+        /// <summary>
+        /// Export a set of DTSX files to SQL scripts (SQL Server compatible).
+        /// </summary>
+        /// <param name="packagePath">The path of DTSX files.</param>
+        /// <param name="destinationConnectionString">The path of folder where the scripts will be saved.</param>
+        /// <param name="readFiles">The current number of read DTSX files.</param>
+        /// <returns>The total number of DTSX files read.</returns>
+        public int ExportToFiles(string packagePathsList, string destinationConnectionString, int readFiles)
         {
             string[] dtsxFiles = Directory.GetFiles(packagePathsList, "*.dtsx");
 
-            List<string> outputScripFiles = new List<string>();
+            // This variable is used to give to every DTSX file
+            // a unique number.
+            int counter = readFiles;
 
             if (dtsxFiles != null && dtsxFiles.Length > 0)
             {
-                string scriptFilePath = Path.Combine(destinationFolder, $"{counter.ToString()}_{SQL_SCRIPT_PACKAGE_LIST_NAME}");
+                counter++;
 
-                if (counter == 1)
-                {
-                    if (File.Exists(scriptFilePath))
-                        RenameExistingFile(scriptFilePath);
-                }
+                // When destination folder is empty, the SQL script will
+                // be saved in the same location as the executable (.exe)
+                if (string.IsNullOrEmpty(destinationConnectionString))
+                    destinationConnectionString = Environment.CurrentDirectory;
 
-                outputScripFiles.Add(scriptFilePath);
+                string scriptFilePath = Path.Combine(destinationConnectionString, $"{counter}_{SQL_SCRIPT_PACKAGE_LIST_NAME}");
+
+                if (File.Exists(scriptFilePath))
+                    RenameExistingFile(scriptFilePath);
 
                 using (StreamWriter sw = new StreamWriter(scriptFilePath))
                 {
@@ -97,9 +116,9 @@ LINKED_ITEM_TYPE VARCHAR(200)
                     for (int i = 0; i < dtsxFiles.Length; i++)
                     {
                         DTSXReader reader = new DTSXReader();
-                        var itemList = reader.Read(dtsxFiles[i]);
+                        List<DTSXItem> itemList = reader.Read(dtsxFiles[i]);
                         sw.WriteLine("begin tran");
-                        foreach (var item in itemList)
+                        foreach (DTSXItem item in itemList)
                         {
                             sw.WriteLine($"insert into dtsx_info(dtsx_id,dtsx_path,dtsx_name,item_id,item_type,field_id,field_name,value,linked_item_type)");
                             sw.WriteLine($"values({counter},'{Path.GetDirectoryName(dtsxFiles[i]).Replace("'", "''")}','{item.DTSXName.Replace("'", "''")}',{item.ItemId},'{item.ItemType}',{item.FieldId},'{item.FieldName}','{item.Value.Replace("'", "''").Replace("\n", "\r\n")}','{item.LinkedItemType}')");
@@ -109,27 +128,35 @@ LINKED_ITEM_TYPE VARCHAR(200)
                         OnExportedDTSX(new ExportedDTSX(counter, dtsxFiles[i], scriptFilePath));
                         counter++;
                     }
+
+                    // Decrease the number of read files that was increased in above loop,
+                    // since no file was processed after last cycle.
+                    counter--;
                 }
             }
 
-
+            // Read DTSX files from subdirectories
             string[] childDirectories = Directory.GetDirectories(packagePathsList);
             if (childDirectories.Length > 0)
             {
                 foreach (string path in childDirectories)
                 {
-                    List<string> scriptsList = ExportToFiles(path, destinationFolder);
-                    foreach (string script in scriptsList)
-                    {
-                        if (!outputScripFiles.Contains(script))
-                        {
-                            outputScripFiles.Add(script);
-                        }
-                    }
+                    counter = ExportToFiles(path, destinationConnectionString, counter);
                 }
             }
 
-            return outputScripFiles;
+            return counter;
+        }
+
+        /// <summary>
+        /// Export a set of DTSX files to SQL scripts (SQL Server compatible).
+        /// </summary>
+        /// <param name="packagePath">The path of DTSX files.</param>
+        /// <param name="destinationConnectionString">The path of folder where the scripts will be saved.</param>
+        /// <returns>The total number of DTSX files read.</returns>
+        public int ExportToFiles(string packagePathsList, string destinationConnectionString)
+        {
+            return ExportToFiles(packagePathsList, destinationConnectionString, 0);
         }
 
         /// <summary>
@@ -168,6 +195,10 @@ LINKED_ITEM_TYPE VARCHAR(200)
 
         #region IExporterObservable members
 
+        /// <summary>
+        /// Subscribes an observer in order to send notification about processed DTSX files.
+        /// </summary>
+        /// <param name="observer">A <see cref="IExporterObserver"/> object</param>
         public void Subscribe(IExporterObserver observer)
         {
             if (observersList == null)
@@ -179,6 +210,10 @@ LINKED_ITEM_TYPE VARCHAR(200)
             observersList.Add(observer);
         }
 
+        /// <summary>
+        /// Unsubscribes an observer from receiving notifications about processed DTSX files.
+        /// </summary>
+        /// <param name="observer">A <see cref="IExporterObserver"/> object</param>
         public void UnSubscribe(IExporterObserver observer)
         {
             if (observersList != null)
@@ -187,6 +222,10 @@ LINKED_ITEM_TYPE VARCHAR(200)
 
         #endregion
 
+        /// <summary>
+        /// Fires an event when a DTSX file was exported to a destination.
+        /// </summary>
+        /// <param name="exportedDTSX">The details of exported DTSX file.</param>
         private void OnExportedDTSX(ExportedDTSX exportedDTSX)
         {
             foreach (IExporterObserver observer in observersList)
@@ -194,6 +233,10 @@ LINKED_ITEM_TYPE VARCHAR(200)
                 observer.OnDTSXExported(exportedDTSX);
             }
         }
+
+        #region IDisposible Members
+
+        private bool disposedValue;
 
         protected virtual void Dispose(bool disposing)
         {
@@ -214,5 +257,7 @@ LINKED_ITEM_TYPE VARCHAR(200)
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
+        #endregion
     }
 }

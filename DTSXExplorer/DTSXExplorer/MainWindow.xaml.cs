@@ -50,5 +50,18 @@ namespace DTSXExplorer
                 return openFileDialog.FileName;
             return null;
         }
+
+        private void btn_Set_Connection_Click(object sender, RoutedEventArgs e)
+        {
+            SQLServerConnectionWindow connectionWindow = new SQLServerConnectionWindow();
+            connectionWindow.Owner = Application.Current.MainWindow;
+            SQLServerAuthenticationViewModel authenticationViewModel = new SQLServerAuthenticationViewModel();
+            connectionWindow.DataContext = authenticationViewModel;
+
+            if (connectionWindow.ShowDialog().Value)
+            {
+                viewModel.ConnectionProperties = authenticationViewModel;
+            }
+        }
     }
 }

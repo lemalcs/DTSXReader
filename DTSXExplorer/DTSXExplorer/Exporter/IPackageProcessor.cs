@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace DTSXExplorer
+﻿namespace DTSXExplorer
 {
     /// <summary>
     /// Export the content of DTSX files to other formats.
@@ -8,19 +6,19 @@ namespace DTSXExplorer
     internal interface IPackageProcessor
     {
         /// <summary>
-        /// Export the content of a single DTSX file to a single file.
+        /// Export the content of a single DTSX file to a destination (for instance: file, database).
         /// </summary>
         /// <param name="packagePath">The path of DTSX file.</param>
-        /// <param name="destinationFile">The path of file containing the exported file.</param>
-        /// <returns>The path of the output file.</returns>
-        string Export(string packagePath, string destinationFile);
+        /// <param name="destinationConnectionString">The destination connection string where DTSX files will be saved.</param>
+        /// <returns>The total number of read DTSX files.</returns>
+        int Export(string packagePath, string destinationConnectionString);
 
         /// <summary>
-        /// Export the content of multiple DTSX files to multiple files.
+        /// Export the content of multiple DTSX files to a destination (for instance: file, database).
         /// </summary>
         /// <param name="packagePathsList">The path of folder containing the DTSX files.</param>
-        /// <param name="destinationFolder">The path of folder where to store exported files.</param>
-        /// <returns>The list of paths of output file.</returns>
-        List<string> ExportToFiles(string packagePathsList, string destinationFolder);
+        /// <param name="destinationConnectionString">The destination connection string where DTSX files will be saved</param>
+        /// <returns>The total number of read DTSX files.</returns>
+        int ExportToFiles(string packagePathsList, string destinationConnectionString);
     }
 }

@@ -7,7 +7,7 @@ namespace DTSXExplorer
     /// <summary>
     /// Manage JSON files.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of object to serialize to.</typeparam>
     public static class JSONSerializer<T>
     {
         public static byte[] Serialize(T dataObject)
