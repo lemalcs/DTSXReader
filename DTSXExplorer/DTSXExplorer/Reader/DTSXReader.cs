@@ -13,7 +13,7 @@ namespace DTSXExplorer
     {
         #region Properties
         /// <summary>
-        /// Contains the whole structure of a DTSX.
+        /// Contains the whole structure of a DTSX file.
         /// </summary>
         private List<DTSXItem> items = new List<DTSXItem>();
 
@@ -23,7 +23,7 @@ namespace DTSXExplorer
         public string DTSXName { get; private set; }
 
         /// <summary>
-        /// The number of elements of a DTSX.
+        /// The number of elements of a DTSX file.
         /// </summary>
         private int itemCounter = 0;
 
@@ -33,10 +33,10 @@ namespace DTSXExplorer
 
 
         /// <summary>
-        /// Read a DTSX file.
+        /// Reads a DTSX file.
         /// </summary>
         /// <param name="filePath">The path of DTSX file.</param>
-        /// <returns>The list of elements of DTSX file.</returns>
+        /// <returns>The list of elements found in the DTSX file.</returns>
         public List<DTSXItem> Read(string filePath)
         {
             using (FileStream fs = new FileStream(filePath,
@@ -48,10 +48,10 @@ namespace DTSXExplorer
         }
 
         /// <summary>
-        /// Read the structure of DTSX.
+        /// Reads the structure of a DTSX document.
         /// </summary>
-        /// <param name="stream">The stream containing the DTSX document.</param>
-        /// <returns>The list of elements found.</returns>
+        /// <param name="stream">The stream that contains the DTSX document.</param>
+        /// <returns>The list of elements in the DTSX document.</returns>
         private List<DTSXItem> ParseXML(Stream stream)
         {
             XmlReaderSettings settings = new XmlReaderSettings();
@@ -66,24 +66,22 @@ namespace DTSXExplorer
                     {
                         case XmlNodeType.Element:
 
-                            DTSXItem childItem = null;
+                            DTSXItem parentItem = null;
                             if (parentStack.Count > 0)
                             {
-                                parentStack.Peek().ChildrenCount++;
-
-                                // Add entry for child
-                                int currentFieldId = items.Where(x => x.ItemId == parentStack.Peek().ItemDetail.ItemId).Select(x => x.FieldId).Max();
-                                childItem = new DTSXItem
+                                parentItem = new DTSXItem
                                 {
                                     DTSXName = DTSXName,
                                     ItemId = parentStack.Peek().ItemDetail.ItemId,
                                     ItemType = parentStack.Peek().ItemDetail.ItemType,
-                                    FieldId = currentFieldId + 1,
+                                    FieldId = parentStack.Peek().ChildrenCount + 1,
                                     FieldName = "_child_",
                                     Value = "",
                                     LinkedItemType = reader.Name
                                 };
-                                items.Add(childItem);
+                                items.Add(parentItem);
+
+                                parentStack.Peek().IncreaseChildrenCount();
                             }
 
                             itemCounter++;
@@ -101,35 +99,40 @@ namespace DTSXExplorer
                             };
                             items.Add(newItem);
 
-                            if (childItem != null)
-                                childItem.Value = itemCounter.ToString();
+                            if (parentItem != null)
+                                parentItem.Value = itemCounter.ToString();
 
+                            // Add a new element to the stack only if it has descendants (elements)
                             if (!reader.IsEmptyElement)
                             {
-                                parentStack.Push(new Element { ChildrenCount = 0, ItemDetail = newItem });
+                                parentStack.Push(new Element { ItemDetail = newItem });
                             }
 
-                            GetAtributes(reader);
+                            int attributesCount = GetAtributes(reader);
+
+                            if (newItem.ItemId == parentStack.Peek().ItemDetail.ItemId)
+                                parentStack.Peek().IncreaseChildrenCountBy(attributesCount);
 
                             break;
-                        case XmlNodeType.Text:
-                            parentStack.Peek().ChildrenCount++;
 
+                        case XmlNodeType.Text:
+                            
                             // Add an entry for new item
                             itemCounter++;
 
                             // Add an entry for child
-                            int parentFieldId = items.Where(x => x.ItemId == parentStack.Peek().ItemDetail.ItemId).Select(x => x.FieldId).Max();
                             items.Add(new DTSXItem
                             {
                                 DTSXName = DTSXName,
                                 ItemId = parentStack.Peek().ItemDetail.ItemId,
                                 ItemType = parentStack.Peek().ItemDetail.ItemType,
-                                FieldId = parentFieldId + 1,
+                                FieldId = parentStack.Peek().ChildrenCount + 1,
                                 FieldName = "_child_",
                                 Value = itemCounter.ToString(),
                                 LinkedItemType = "TEXT"
                             });
+
+                            parentStack.Peek().IncreaseChildrenCount();
 
                             // Add an entry for parent
                             items.Add(new DTSXItem
@@ -155,15 +158,13 @@ namespace DTSXExplorer
                             });
 
                             break;
+
                         case XmlNodeType.EndElement:
                             parentStack.Pop();
                             break;
-                        case XmlNodeType.CDATA:
-                            if (parentStack.Count > 0)
-                            {
-                                parentStack.Peek().ChildrenCount++;
-                            }
 
+                        case XmlNodeType.CDATA:
+                            
                             MemoryStream memoryStream = new MemoryStream();
                             byte[] cdataContent = Encoding.UTF8.GetBytes(reader.Value);
                             memoryStream.Write(cdataContent, 0, cdataContent.Length);
@@ -178,18 +179,19 @@ namespace DTSXExplorer
                                 // Add an entry for new item
                                 itemCounter++;
 
-                                // Add an entry for child
-                                int textParentFieldId = items.Where(x => x.ItemId == parentStack.Peek().ItemDetail.ItemId).Select(x => x.FieldId).Max();
+                                // Add an entry for the parent's child
                                 items.Add(new DTSXItem
                                 {
                                     DTSXName = DTSXName,
                                     ItemId = parentStack.Peek().ItemDetail.ItemId,
                                     ItemType = parentStack.Peek().ItemDetail.ItemType,
-                                    FieldId = textParentFieldId + 1,
+                                    FieldId = parentStack.Peek().ChildrenCount + 1,
                                     FieldName = "_child_",
                                     Value = itemCounter.ToString(),
                                     LinkedItemType = "TEXT"
                                 });
+                                
+                                parentStack.Peek().IncreaseChildrenCount();
 
                                 // Add an entry for parent
                                 items.Add(new DTSXItem
@@ -215,8 +217,9 @@ namespace DTSXExplorer
                                 });
                             }
                             break;
+
                         default:
-                            // Don't add section not used in DTSX files.
+                            // Don't add a section that is not used in DTSX files.
                             break;
                     }
                 }
@@ -226,16 +229,17 @@ namespace DTSXExplorer
         }
 
         /// <summary>
-        /// Get the attributes of a XML element.
+        /// Gets the attributes of a XML element.
         /// </summary>
         /// <param name="reader">The stream of the XML document.</param>
-        private void GetAtributes(XmlReader reader)
+        /// <returns>The number of attributes in the element.</returns>
+        private int GetAtributes(XmlReader reader)
         {
             if (reader == null)
-                return;
+                return 0;
 
             if (!reader.HasAttributes)
-                return;
+                return 0;
 
             int fieldId = 1;
             while (reader.MoveToNextAttribute())
@@ -252,6 +256,8 @@ namespace DTSXExplorer
                 });
                 fieldId++;
             }
+
+            return fieldId - 1;
         }
 
         #endregion
