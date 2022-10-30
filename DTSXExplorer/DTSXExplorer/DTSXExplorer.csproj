@@ -82,6 +82,9 @@
     <Compile Include="SQLServerConnectionWindow.xaml.cs">
       <DependentUpon>SQLServerConnectionWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TableDefinitionWindow.xaml.cs">
+      <DependentUpon>TableDefinitionWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -101,6 +104,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="SQLServerConnectionWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TableDefinitionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

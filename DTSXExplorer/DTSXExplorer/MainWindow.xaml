@@ -15,7 +15,7 @@
             <Grid.RowDefinitions>
                 
                 <!-- Input controls -->
-                <RowDefinition Height="280"/>
+                <RowDefinition Height="300"/>
                 
                 <!-- Log label -->
                 <RowDefinition Height="20"/>
@@ -55,6 +55,8 @@
                         <!-- Destination path -->
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        
                         <RowDefinition Height="Auto" />
                         
                         <!-- Fire reading -->
@@ -208,9 +210,28 @@
                         </Grid>
                     </Border>
 
+                    <!-- View table definition -->
+                    <FlowDocumentScrollViewer Grid.Row="7"
+                                            HorizontalAlignment="Left"
+                                            Width="120"
+                                            BorderThickness="0"
+                                            Padding="0"
+                                            Margin="15 0 0 0"
+                                            VerticalScrollBarVisibility="Hidden">
+                        <FlowDocument LineHeight="1">
+                            <Paragraph>
+                                <Hyperlink TextDecorations="None"
+                                                   FontFamily="{Binding ElementName=txt_Destination_Path,Path=FontFamily}"
+                                                   FontSize="{Binding ElementName=txt_Destination_Path,Path=FontSize}"
+                                                   Click="hyperlink_Click_View_Table_Definition">
+                                    <Run Text="View table definition"/>
+                                </Hyperlink>
+                            </Paragraph>
+                        </FlowDocument>
+                    </FlowDocumentScrollViewer>
                     
                     <!-- Start reading file -->
-                    <Button Grid.Row="7"
+                    <Button Grid.Row="8"
 							Margin="0 15 0 0"
 							Grid.ColumnSpan="2"
 							Content="Start reading"

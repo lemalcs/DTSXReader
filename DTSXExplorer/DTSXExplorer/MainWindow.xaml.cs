@@ -53,6 +53,7 @@ namespace DTSXExplorer
 
         private void btn_Set_Connection_Click(object sender, RoutedEventArgs e)
         {
+            // Show dialog to configure connection to a SQL Server database.
             SQLServerConnectionWindow connectionWindow = new SQLServerConnectionWindow();
             connectionWindow.Owner = Application.Current.MainWindow;
             SQLServerAuthenticationViewModel authenticationViewModel = new SQLServerAuthenticationViewModel();
@@ -62,6 +63,14 @@ namespace DTSXExplorer
             {
                 viewModel.ConnectionProperties = authenticationViewModel;
             }
+        }
+
+        private void hyperlink_Click_View_Table_Definition(object sender, RoutedEventArgs e)
+        {
+            // Show the dialog to view the SQL script of destination table for SQL Server.
+            TableDefinitionWindow definitionWindow = new TableDefinitionWindow();
+            definitionWindow.Owner = Application.Current.MainWindow;
+            definitionWindow.ShowDialog();
         }
     }
 }
