@@ -1,9 +1,9 @@
-﻿namespace DTSXExplorer
+﻿namespace DTSXDumper
 {
     /// <summary>
     /// Details about exported DTSX files.
     /// </summary>
-    internal class ExportedDTSX
+    public class ExportedDTSX
     {
         /// <summary>
         /// The ID assigned to a DTSX file.
@@ -30,7 +30,7 @@
     /// <summary>
     /// Receives notifications about exported DTSX files.
     /// </summary>
-    internal interface IExporterObserver
+    public interface IExporterObserver
     {
         /// <summary>
         /// Notifies about exported DTSX file.

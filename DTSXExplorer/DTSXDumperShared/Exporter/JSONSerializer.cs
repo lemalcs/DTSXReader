@@ -2,7 +2,7 @@
 using System.IO;
 using System.Runtime.Serialization.Json;
 
-namespace DTSXExplorer
+namespace DTSXDumper
 {
     /// <summary>
     /// Manage JSON files.

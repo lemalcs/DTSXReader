@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace DTSXExplorer
+namespace DTSXDumper
 {
     /// <summary>
     /// Export DTSX files to SQL scripts.
     /// </summary>
-    internal class SQLScriptPackageProcessor : IPackageProcessor, IExporterObservable
+    public class SQLScriptPackageProcessor : IPackageProcessor, IExporterObservable
     {
         /// <summary>
         /// The list of observers to notify to about current exported DTSX files.

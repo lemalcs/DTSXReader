@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace DTSXExplorer
+namespace DTSXDumper
 {
     /// <summary>
     /// Reads a DTSX file.
     /// </summary>
-    internal class DTSXReader
+    public class DTSXReader
     {
         #region Properties
         /// <summary>

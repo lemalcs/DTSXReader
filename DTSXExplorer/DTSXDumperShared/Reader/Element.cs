@@ -1,9 +1,9 @@
-﻿namespace DTSXExplorer
+﻿namespace DTSXDumper
 {
     /// <summary>
     /// Represent a element from XML format.
     /// </summary>
-    internal class Element
+    public class Element
     {
         /// <summary>
         /// The current number of children, these include attributes and descendant tags 

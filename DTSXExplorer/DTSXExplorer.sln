@@ -1,11 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.1.32228.430
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32929.386
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTSXExplorer", "DTSXExplorer\DTSXExplorer.csproj", "{933E1934-05E1-4E9A-9EC1-DB9C8779B5B7}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DTSXDumper", "DTSXDumper\DTSXDumper.csproj", "{D49A7D7D-5E9A-4621-A2ED-B0B1C93E87A9}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DTSXDumperShared", "DTSXDumperShared\DTSXDumperShared.shproj", "{4947B8BC-E3D1-409C-9230-21791F93F268}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTSXDumperNet40", "DTSXDumperNet40\DTSXDumperNet40.csproj", "{B1475F78-47B8-4845-AAAD-08980C081ABD}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		DTSXDumperShared\DTSXDumperShared.projitems*{4947b8bc-e3d1-409c-9230-21791f93f268}*SharedItemsImports = 13
+		DTSXDumperShared\DTSXDumperShared.projitems*{b1475f78-47b8-4845-aaad-08980c081abd}*SharedItemsImports = 4
+		DTSXDumperShared\DTSXDumperShared.projitems*{d49a7d7d-5e9a-4621-a2ed-b0b1c93e87a9}*SharedItemsImports = 5
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -15,6 +26,14 @@ Global
 		{933E1934-05E1-4E9A-9EC1-DB9C8779B5B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{933E1934-05E1-4E9A-9EC1-DB9C8779B5B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{933E1934-05E1-4E9A-9EC1-DB9C8779B5B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D49A7D7D-5E9A-4621-A2ED-B0B1C93E87A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D49A7D7D-5E9A-4621-A2ED-B0B1C93E87A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D49A7D7D-5E9A-4621-A2ED-B0B1C93E87A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D49A7D7D-5E9A-4621-A2ED-B0B1C93E87A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1475F78-47B8-4845-AAAD-08980C081ABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1475F78-47B8-4845-AAAD-08980C081ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1475F78-47B8-4845-AAAD-08980C081ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1475F78-47B8-4845-AAAD-08980C081ABD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

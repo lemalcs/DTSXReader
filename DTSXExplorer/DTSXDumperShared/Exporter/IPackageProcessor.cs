@@ -1,9 +1,9 @@
-﻿namespace DTSXExplorer
+﻿namespace DTSXDumper
 {
     /// <summary>
     /// Export the content of DTSX files to other formats.
     /// </summary>
-    internal interface IPackageProcessor
+    public interface IPackageProcessor
     {
         /// <summary>
         /// Export the content of a single DTSX file to a destination (for instance: file, database).

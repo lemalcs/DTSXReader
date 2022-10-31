@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>4947b8bc-e3d1-409c-9230-21791f93f268</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>DTSXDumperShared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Exporter\IExporterObservable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Exporter\IExporterObserver.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Exporter\IPackageProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Exporter\JSONSerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Exporter\SQLScriptPackageProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Exporter\SQLServerPackageProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Reader\DTSXItem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Reader\DTSXReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Reader\Element.cs" />
+  </ItemGroup>
+</Project>

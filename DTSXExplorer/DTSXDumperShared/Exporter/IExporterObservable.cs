@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace DTSXExplorer
+namespace DTSXDumper
 {
     /// <summary>
     /// Sends notifications about exported DTSX files.
     /// </summary>
-    internal interface IExporterObservable : IDisposable
+    public interface IExporterObservable : IDisposable
     {
         /// <summary>
         /// Subscribe to notifications about exported DTSX files.

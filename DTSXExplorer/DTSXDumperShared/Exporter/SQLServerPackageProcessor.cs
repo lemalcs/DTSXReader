@@ -1,14 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+
+#if NET40
 using System.Data.SqlClient;
+#else
+using Microsoft.Data.SqlClient;
+#endif
+
 using System.IO;
 
-namespace DTSXExplorer
+namespace DTSXDumper
 {
     /// <summary>
     /// Export DTSX files to a SQL Server database.
     /// </summary>
-    internal class SQLServerPackageProcessor : IPackageProcessor, IExporterObservable
+    public class SQLServerPackageProcessor : IPackageProcessor, IExporterObservable
     {
         /// <summary>
         /// The list of observers to notify to about current exported DTSX files.
@@ -183,7 +189,7 @@ values(@dtsx_id,@dtsx_path,@dtsx_name,@item_id,@item_type,@field_id,@field_name,
         }
 
 
-        #region IExporterObservable members
+#region IExporterObservable members
 
         /// <summary>
         /// Subscribes an observer in order to send notification about processed DTSX files.
@@ -210,7 +216,7 @@ values(@dtsx_id,@dtsx_path,@dtsx_name,@item_id,@item_type,@field_id,@field_name,
                 observersList.Remove(observer);
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Fires an event when a DTSX file was exported to a destination.
@@ -224,7 +230,7 @@ values(@dtsx_id,@dtsx_path,@dtsx_name,@item_id,@item_type,@field_id,@field_name,
             }
         }
 
-        #region IDisposable members
+#region IDisposable members
 
         private bool disposedValue;
 
@@ -248,6 +254,6 @@ values(@dtsx_id,@dtsx_path,@dtsx_name,@item_id,@item_type,@field_id,@field_name,
             GC.SuppressFinalize(this);
         }
 
-        #endregion
+#endregion
     }
 }
