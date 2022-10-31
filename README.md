@@ -9,14 +9,18 @@ A DTSX file can be opened using Visual Studio which is great IDE for debugging a
 Hence there is a need to get any information like flow, tasks, connections, variables of DTSXs but at scale.
 
 ## Getting started
-This helper generates scripts for SQL Server that insert the content of DTSX files to a table.
+This helper dumps the content of DTSX files to the following destinations:
+- Scripts (SQL Server compatible)
+- SQL Server database
+
+**SQL Scripts**
 
 You can get the scripts following these steps:
 
 1. Select the **Type of processing** that indicates whether to load a single DTSX file or multiple DTSX files.
     > When selecting **Multiple DTSX files** option, this application reads the files in current folder and the files located in its descendant folders recursively. 
 2. In **Source path** field, enter the full path of the DTSX file when **Single DTSX file** option is selected otherwise enter path of the folder where the files are located.
-3. In **Destination path** field, enter the path of the folder where the scripts will be saved.
+3. In **Export to** section choose **File system** option and in the field **Destination folder** enter the path of the folder where the scripts will be saved in.
     > Each output script file will contain all the DTSXs found in the current folder
 4. Click **Start reading** and wait for the scripts to be generated.
 
@@ -38,6 +42,19 @@ create table dtsx_info(
     linked_item_type varchar(200)
 )
 ```
+
+
+**SQL Server**
+
+DTSX files can be dumped straight into a table in a SQL Server database. In order to do this, after you had selected the source DTSX file or files, follow these steps:
+
+1. In the **Export to** section choose **SQL Server** option and click **Set connection**.
+2. In the **SQL Server Connection** dialog, enter the server name, database name and credentials for the SQL Server instance, then click **OK**.
+3. Hit the **Start reading** button to start dumping DTSX files.
+
+> You need to have the table created beforehand in the database, find the definition of the table in the *SQL Script* section.
+
+
 
 ## Examples of queries
 
@@ -186,3 +203,10 @@ and conntype.field_name='DTS:CreationName'
 **How to get more about content of a DTSX?**
 
 To retrieve more information such as data flow tasks, creator name, script tasks; you can open the DTSX file with a text editor and read the inner XML in order to write a query that fits your needs, the queries listed above can give you guidelines of how to write them.
+
+## Compatibility
+
+The library DTSXDumper (used to read DTSX files) is supported in the following environments:
+- .NET Framework 4.0 and later.
+- .NET Core 3.1 and later.
+- .NET 5.0 and later.
