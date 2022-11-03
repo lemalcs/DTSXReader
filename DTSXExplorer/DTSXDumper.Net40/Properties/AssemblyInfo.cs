@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DTSXDumperNet40")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("DTSXDumper for .Net Framework 4.0")]
+[assembly: AssemblyDescription("DTSXDumper for .Net Framework 4.0")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("DTSXDumperNet40")]
+[assembly: AssemblyProduct("DTSXDumper")]
 [assembly: AssemblyCopyright("Copyright ©  2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

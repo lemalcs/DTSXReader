@@ -2,6 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Title>DTSX Dumper</Title>
+    <Authors>Luis Lema</Authors>
+    <PackageTags>DTSX, SSIS, DTSX Reader, SQL Server Integration Services</PackageTags>
+    <PackageReleaseNotes>Export DTSX files to SQL scripts and SQL Server database.</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/lemalcs/DTSXReader</RepositoryUrl>
+    <Copyright>2022</Copyright>
+    <Description>Exports DTSX files to a structure better suitable for analysis and mining tasks.</Description>
+    <PackageProjectUrl>https://github.com/lemalcs/DTSXReader</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

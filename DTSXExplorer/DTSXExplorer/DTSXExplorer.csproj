@@ -129,9 +129,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DTSXDumperNet40\DTSXDumperNet40.csproj">
+    <ProjectReference Include="..\DTSXDumper.Net40\DTSXDumper.Net40.csproj">
       <Project>{b1475f78-47b8-4845-aaad-08980c081abd}</Project>
-      <Name>DTSXDumperNet40</Name>
+      <Name>DTSXDumper.Net40</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Luis Lema</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/lemalcs/DTSXReader</projectUrl>
+    <description>$description$</description>
+    <releaseNotes>Exports DTSX files to SQL scripts and SQL Server database. 
+	This version targets .NET Framework 4.0 and later.</releaseNotes>
+    <copyright>$copyright$</copyright>
+    <tags>DTSX, SSIS, DTSX Reader, SQL Server Integration Services, .NET Framework</tags>
+  </metadata>
+</package>

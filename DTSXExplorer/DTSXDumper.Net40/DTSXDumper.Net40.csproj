@@ -7,8 +7,8 @@
     <ProjectGuid>{B1475F78-47B8-4845-AAAD-08980C081ABD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DTSXDumperNet40</RootNamespace>
-    <AssemblyName>DTSXDumperNet40</AssemblyName>
+    <RootNamespace>DTSXDumper.Net40</RootNamespace>
+    <AssemblyName>DTSXDumper.Net40</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -26,7 +26,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NET40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
