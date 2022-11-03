@@ -22,6 +22,11 @@ namespace DTSXDumper
         private List<IExporterObserver> observersList;
 
         /// <summary>
+        /// Indicates if there is a request to stop the exporting of DTSX files.
+        /// </summary>
+        private volatile bool cancelExporting;
+
+        /// <summary>
         /// Export a DTSX file to a SQL Server database.
         /// </summary>
         /// <param name="packagePath">The path of DTSX file.</param>
@@ -29,6 +34,8 @@ namespace DTSXDumper
         /// <returns>The number of DTSX files read.</returns>
         public int Export(string packagePath, string destinationConnectionString)
         {
+            cancelExporting = false;
+
             DTSXReader reader = new DTSXReader();
             List<DTSXItem> itemList = reader.Read(packagePath);
 
@@ -69,6 +76,11 @@ values(@dtsx_id,@dtsx_path,@dtsx_name,@item_id,@item_type,@field_id,@field_name,
                     // Do not send the output location because the connection string to a database
                     // may have sensitive information.
                     OnExportedDTSX(new ExportedDTSX(1, packagePath, null));
+
+                    if (cancelExporting)
+                    {
+                        return counter;
+                    }
                 }
                 catch (Exception)
                 {
@@ -76,6 +88,10 @@ values(@dtsx_id,@dtsx_path,@dtsx_name,@item_id,@item_type,@field_id,@field_name,
                         sqlTransaction.Rollback();
 
                     throw;
+                }
+                finally
+                {
+                    sqlConnection.Close();
                 }
             }
 
@@ -91,6 +107,11 @@ values(@dtsx_id,@dtsx_path,@dtsx_name,@item_id,@item_type,@field_id,@field_name,
         /// <returns>The number of DTSX files read.</returns>
         public int ExportToFiles(string packagePathsList, string destinationConnectionString, int readFiles)
         {
+            if (cancelExporting)
+            {
+                return readFiles;
+            }
+
             string[] dtsxFiles = Directory.GetFiles(packagePathsList, "*.dtsx");
 
             // This variable is used to give to every DTSX file
@@ -143,6 +164,11 @@ values(@dtsx_id,@dtsx_path,@dtsx_name,@item_id,@item_type,@field_id,@field_name,
                             // may have sensitive information.
                             OnExportedDTSX(new ExportedDTSX(counter, dtsxFiles[i], null));
 
+                            if (cancelExporting)
+                            {
+                                return counter;
+                            }
+
                             counter++;
                         }
                         catch (Exception)
@@ -171,6 +197,11 @@ values(@dtsx_id,@dtsx_path,@dtsx_name,@item_id,@item_type,@field_id,@field_name,
                 foreach (string path in childDirectories)
                 {
                     counter = ExportToFiles(path, destinationConnectionString, counter);
+                    
+                    if (cancelExporting)
+                    {
+                        return counter;
+                    }
                 }
             }
 
@@ -185,11 +216,20 @@ values(@dtsx_id,@dtsx_path,@dtsx_name,@item_id,@item_type,@field_id,@field_name,
         /// <returns>The number of DTSX files read.</returns>
         public int ExportToFiles(string packagePathsList, string destinationConnectionString)
         {
+            cancelExporting = false;
             return ExportToFiles(packagePathsList, destinationConnectionString, 0);
         }
 
+        /// <summary>
+        /// Request to cancel exporting of DTSX files to SQL Server database.
+        /// </summary>
+        public void CancelExport()
+        {
+            cancelExporting = true;
+        }
 
-#region IExporterObservable members
+
+        #region IExporterObservable members
 
         /// <summary>
         /// Subscribes an observer in order to send notification about processed DTSX files.
@@ -216,7 +256,7 @@ values(@dtsx_id,@dtsx_path,@dtsx_name,@item_id,@item_type,@field_id,@field_name,
                 observersList.Remove(observer);
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Fires an event when a DTSX file was exported to a destination.
@@ -230,7 +270,7 @@ values(@dtsx_id,@dtsx_path,@dtsx_name,@item_id,@item_type,@field_id,@field_name,
             }
         }
 
-#region IDisposable members
+        #region IDisposable members
 
         private bool disposedValue;
 
@@ -254,6 +294,6 @@ values(@dtsx_id,@dtsx_path,@dtsx_name,@item_id,@item_type,@field_id,@field_name,
             GC.SuppressFinalize(this);
         }
 
-#endregion
+        #endregion
     }
 }

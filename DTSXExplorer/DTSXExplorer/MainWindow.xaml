@@ -28,10 +28,10 @@
             </Grid.RowDefinitions>
             
             <StackPanel Grid.Row="0" 
-                        Orientation="Vertical"
-                        IsEnabled="{Binding IsReading,Converter={local:InverseBoolConverter}}" >
+                        Orientation="Vertical">
                 
-                <Grid Margin="10 10 25 0">
+                <Grid Margin="10 10 25 0"
+                      IsEnabled="{Binding IsReading,Converter={local:InverseBoolConverter}}" >
                     
                     <Grid.ColumnDefinitions>
                         
@@ -230,16 +230,18 @@
                         </FlowDocument>
                     </FlowDocumentScrollViewer>
                     
-                    <!-- Start reading file -->
-                    <Button Grid.Row="8"
-							Margin="0 15 0 0"
-							Grid.ColumnSpan="2"
-							Content="Start reading"
-							HorizontalAlignment="Center"
-							Width="100"
-							Height="30"
-							Command="{Binding ReadCommand}" />
                 </Grid>
+                
+                <!-- Start reading file -->
+                <Button Grid.Row="8"
+						Margin="0 15 0 0"
+						Grid.ColumnSpan="2"
+						Content="{Binding IsReading, Converter={local:ReadingStateToDescriptionConverter}}"
+                        IsEnabled="{Binding IsCanceling, Converter={local:InverseBoolConverter}}"
+						HorizontalAlignment="Center"
+						Width="100"
+						Height="30"
+						Command="{Binding ReadCommand}" />
             </StackPanel>
 
             <Border Grid.Row="1">

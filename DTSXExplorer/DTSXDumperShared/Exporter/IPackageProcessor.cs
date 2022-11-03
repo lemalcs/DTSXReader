@@ -20,5 +20,10 @@
         /// <param name="destinationConnectionString">The destination connection string where DTSX files will be saved</param>
         /// <returns>The total number of read DTSX files.</returns>
         int ExportToFiles(string packagePathsList, string destinationConnectionString);
+
+        /// <summary>
+        /// Request to stop exporting of DTSX files.
+        /// </summary>
+        void CancelExport();
     }
 }

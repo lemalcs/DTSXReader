@@ -44,6 +44,11 @@ linked_item_type varchar(200)
 */";
 
         /// <summary>
+        /// Indicates if there is a request to stop the exporting of DTSX files.
+        /// </summary>
+        private volatile bool cancelExporting;
+
+        /// <summary>
         /// Export a DTSX file to a SQL script (SQL Server compatible).
         /// </summary>
         /// <param name="packagePath">The path of DTSX file.</param>
@@ -51,6 +56,8 @@ linked_item_type varchar(200)
         /// <returns>The number of DTSX files read.</returns>
         public int Export(string packagePath, string destinationConnectionString)
         {
+            cancelExporting = false;
+
             DTSXReader reader = new DTSXReader();
             List<DTSXItem> itemList = reader.Read(packagePath);
 
@@ -72,6 +79,11 @@ linked_item_type varchar(200)
                 {
                     sw.WriteLine($"insert into dtsx_info(dtsx_id,dtsx_path,dtsx_name,item_id,item_type,field_id,field_name,value,linked_item_type)");
                     sw.WriteLine($"values({counter},'{Path.GetDirectoryName(packagePath).Replace("'", "''")}','{item.DTSXName.Replace("'", "''")}',{item.ItemId},'{item.ItemType}',{item.FieldId},'{item.FieldName}','{item.Value.Replace("'", "''").Replace("\n", "\r\n")}','{item.LinkedItemType}')");
+
+                    if (cancelExporting)
+                    {
+                        return counter;
+                    }
                 }
             }
 
@@ -89,6 +101,11 @@ linked_item_type varchar(200)
         /// <returns>The total number of DTSX files read.</returns>
         public int ExportToFiles(string packagePathsList, string destinationConnectionString, int readFiles)
         {
+            if (cancelExporting)
+            {
+                return readFiles;
+            }
+
             string[] dtsxFiles = Directory.GetFiles(packagePathsList, "*.dtsx");
 
             // This variable is used to give to every DTSX file
@@ -122,6 +139,11 @@ linked_item_type varchar(200)
                         {
                             sw.WriteLine($"insert into dtsx_info(dtsx_id,dtsx_path,dtsx_name,item_id,item_type,field_id,field_name,value,linked_item_type)");
                             sw.WriteLine($"values({counter},'{Path.GetDirectoryName(dtsxFiles[i]).Replace("'", "''")}','{item.DTSXName.Replace("'", "''")}',{item.ItemId},'{item.ItemType}',{item.FieldId},'{item.FieldName}','{item.Value.Replace("'", "''").Replace("\n", "\r\n")}','{item.LinkedItemType}')");
+
+                            if (cancelExporting)
+                            {
+                                return counter;
+                            }
                         }
                         sw.WriteLine("commit tran");
 
@@ -142,6 +164,11 @@ linked_item_type varchar(200)
                 foreach (string path in childDirectories)
                 {
                     counter = ExportToFiles(path, destinationConnectionString, counter);
+                    
+                    if (cancelExporting)
+                    {
+                        return counter;
+                    }
                 }
             }
 
@@ -156,6 +183,7 @@ linked_item_type varchar(200)
         /// <returns>The total number of DTSX files read.</returns>
         public int ExportToFiles(string packagePathsList, string destinationConnectionString)
         {
+            cancelExporting = false;
             return ExportToFiles(packagePathsList, destinationConnectionString, 0);
         }
 
@@ -259,5 +287,13 @@ linked_item_type varchar(200)
         }
 
         #endregion
+
+        /// <summary>
+        /// Request to cancel exporting of DTSX files to SQL scripts.
+        /// </summary>
+        public void CancelExport()
+        {
+            cancelExporting = true;
+        }
     }
 }

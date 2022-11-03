@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using DTSXDumper;
 
@@ -48,6 +49,11 @@ namespace DTSXExplorer
         /// Indicates whether there is a currently reading operation.
         /// </summary>
         private bool isReading;
+
+        /// <summary>
+        /// Indicates whether the reading of DTSX files is being canceled.
+        /// </summary>
+        private bool isCanceling;
 
         /// <summary>
         /// Destination type for DTSX files.
@@ -182,6 +188,18 @@ namespace DTSXExplorer
                 }
             }
         }
+        public bool IsCanceling 
+        { 
+            get => isCanceling;
+            set 
+            {
+                if (isCanceling != value) 
+                { 
+                    isCanceling = value;
+                    OnPropertyChanged(nameof(IsCanceling));
+                }
+            }
+        }
 
         #endregion
 
@@ -215,14 +233,23 @@ namespace DTSXExplorer
         /// </summary>
         private void ReadPackage()
         {
+            if(IsReading)
+            {
+                worker.CancelAsync();
+                IsCanceling = true;
+                return;
+            }
+
             if (ScriptFilePaths != null)
                 ScriptFilePaths.Clear();
             else
                 ScriptFilePaths = new ObservableCollection<string>();
 
-            ScriptFilePaths.Add($"Start time: {DateTime.Now.ToLongTimeString()}");
+            ScriptFilePaths.Add($"Exporting start time: {DateTime.Now.ToLongTimeString()}");
             worker.WorkerReportsProgress = true;
+            worker.WorkerSupportsCancellation = true;
             worker.RunWorkerAsync();
+
             ResultMessage = "Reading...";
         }
 
@@ -247,11 +274,37 @@ namespace DTSXExplorer
                 else if (ConnectionProperties != null)
                     connectionString = ConnectionProperties.GetConnectionString();
 
-                // Start to export DTSX files
-                if (SingleFile)
-                    e.Result = packageProcessor.Export(SourcePath, connectionString);
-                else
-                    e.Result = packageProcessor.ExportToFiles(SourcePath, connectionString);
+               
+                Task exportOperation = Task.Factory.StartNew(() => 
+                {
+                    // Start to export DTSX files
+                    if (SingleFile)
+                        e.Result = packageProcessor.Export(SourcePath, connectionString);
+                    else
+                        e.Result = packageProcessor.ExportToFiles(SourcePath, connectionString);
+                });
+                
+                // Probe if there is a cancellation request
+                while (true)
+                {
+                    if (worker.CancellationPending)
+                    {
+                        packageProcessor.CancelExport();
+                        e.Cancel = true;
+                        break;
+                    }
+                    System.Threading.Thread.Sleep(1000);
+
+                    // Check whether the exporting operation is in one of the following states:
+                    // - RanToCompletion
+                    // - Faulted
+                    // - Canceled
+                    if (exportOperation.IsCompleted)
+                        break;
+                }
+
+                exportOperation.Wait();
+                
             }
             catch (Exception)
             {
@@ -266,13 +319,11 @@ namespace DTSXExplorer
 
         private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            IsReading = false;
-
             if (e.Error != null)
             {
                 ResultMessage = e.Error.Message;
             }
-            else
+            else if(!e.Cancelled)
             {
                 if (ScriptFilePaths == null)
                     ScriptFilePaths = new ObservableCollection<string>();
@@ -289,7 +340,18 @@ namespace DTSXExplorer
                     ResultMessage = $"No DTSX files found on path: {SourcePath}";
                 }
             }
-            ScriptFilePaths.Add($"End time: {DateTime.Now.ToLongTimeString()}");
+            else
+            {
+                ResultMessage = $"Exporting operation was canceled.";
+            }
+
+            if (!e.Cancelled)
+                ScriptFilePaths.Add($"Exporting end time: {DateTime.Now.ToLongTimeString()}");
+            else
+                ScriptFilePaths.Add($"Exporting canceled at: {DateTime.Now.ToLongTimeString()}");
+
+            IsReading = false;
+            IsCanceling = false;
         }
 
         public void OnDTSXExported(ExportedDTSX exportedDTSX)
@@ -302,7 +364,6 @@ namespace DTSXExplorer
             {
                 DestinationPath = Path.GetDirectoryName(exportedDTSX.OutputLocation);
             }
-
         }
     }
 }
