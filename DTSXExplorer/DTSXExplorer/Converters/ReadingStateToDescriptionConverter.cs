@@ -9,7 +9,7 @@ namespace DTSXExplorer
     public class ReadingStateToDescriptionConverter : BaseValueConverter<ReadingStateToDescriptionConverter>
     {
         public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        { 
+        {
             return !(bool)value ? "Start reading" : "Stop reading";
         }
 

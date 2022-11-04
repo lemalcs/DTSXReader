@@ -116,7 +116,7 @@ namespace DTSXDumper
                             break;
 
                         case XmlNodeType.Text:
-                            
+
                             // Add an entry for new item
                             itemCounter++;
 
@@ -164,7 +164,7 @@ namespace DTSXDumper
                             break;
 
                         case XmlNodeType.CDATA:
-                            
+
                             MemoryStream memoryStream = new MemoryStream();
                             byte[] cdataContent = Encoding.UTF8.GetBytes(reader.Value);
                             memoryStream.Write(cdataContent, 0, cdataContent.Length);
@@ -190,7 +190,7 @@ namespace DTSXDumper
                                     Value = itemCounter.ToString(),
                                     LinkedItemType = "TEXT"
                                 });
-                                
+
                                 parentStack.Peek().IncreaseChildrenCount();
 
                                 // Add an entry for parent

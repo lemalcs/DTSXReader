@@ -15,10 +15,10 @@ namespace DTSXExplorer
         #region Native methods and constants
         [DllImport("user32.dll")]
         private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
-        
+
         [DllImport("user32.dll")]
         private static extern bool EnableMenuItem(IntPtr hMenu, uint uIDEnableItem, uint uEnable);
-        
+
         [DllImport("user32.dll")]
         private static extern IntPtr DestroyMenu(IntPtr hWnd);
 

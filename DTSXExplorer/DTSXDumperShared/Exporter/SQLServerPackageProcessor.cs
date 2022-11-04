@@ -197,7 +197,7 @@ values(@dtsx_id,@dtsx_path,@dtsx_name,@item_id,@item_type,@field_id,@field_name,
                 foreach (string path in childDirectories)
                 {
                     counter = ExportToFiles(path, destinationConnectionString, counter);
-                    
+
                     if (cancelExporting)
                     {
                         return counter;

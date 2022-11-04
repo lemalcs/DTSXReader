@@ -164,7 +164,7 @@ linked_item_type varchar(200)
                 foreach (string path in childDirectories)
                 {
                     counter = ExportToFiles(path, destinationConnectionString, counter);
-                    
+
                     if (cancelExporting)
                     {
                         return counter;

@@ -1,10 +1,10 @@
+using DTSXDumper;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using DTSXDumper;
 
 namespace DTSXExplorer
 {
@@ -188,13 +188,13 @@ namespace DTSXExplorer
                 }
             }
         }
-        public bool IsCanceling 
-        { 
+        public bool IsCanceling
+        {
             get => isCanceling;
-            set 
+            set
             {
-                if (isCanceling != value) 
-                { 
+                if (isCanceling != value)
+                {
                     isCanceling = value;
                     OnPropertyChanged(nameof(IsCanceling));
                 }
@@ -233,7 +233,7 @@ namespace DTSXExplorer
         /// </summary>
         private void ReadPackage()
         {
-            if(IsReading)
+            if (IsReading)
             {
                 worker.CancelAsync();
                 IsCanceling = true;
@@ -274,8 +274,8 @@ namespace DTSXExplorer
                 else if (ConnectionProperties != null)
                     connectionString = ConnectionProperties.GetConnectionString();
 
-               
-                Task exportOperation = Task.Factory.StartNew(() => 
+
+                Task exportOperation = Task.Factory.StartNew(() =>
                 {
                     // Start to export DTSX files
                     if (SingleFile)
@@ -283,7 +283,7 @@ namespace DTSXExplorer
                     else
                         e.Result = packageProcessor.ExportToFiles(SourcePath, connectionString);
                 });
-                
+
                 // Probe if there is a cancellation request
                 while (true)
                 {
@@ -304,7 +304,7 @@ namespace DTSXExplorer
                 }
 
                 exportOperation.Wait();
-                
+
             }
             catch (Exception)
             {
@@ -322,12 +322,12 @@ namespace DTSXExplorer
             if (e.Error != null)
             {
                 ResultMessage = e.Error.Message;
-                if(e.Error.InnerException != null)
+                if (e.Error.InnerException != null)
                 {
                     ResultMessage = string.Concat(ResultMessage, Environment.NewLine, e.Error.InnerException.Message);
                 }
             }
-            else if(!e.Cancelled)
+            else if (!e.Cancelled)
             {
                 if (ScriptFilePaths == null)
                     ScriptFilePaths = new ObservableCollection<string>();
