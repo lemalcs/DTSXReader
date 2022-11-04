@@ -192,7 +192,13 @@ namespace DTSXExplorer
             IsConnecting = false;
 
             if (e.Error != null)
+            {
                 ConnectionResult = $"Error: {e.Error.Message}";
+                if(e.Error.InnerException != null)
+                {
+                    ConnectionResult = string.Concat(ConnectionResult, Environment.NewLine, e.Error.InnerException.Message);
+                }
+            }
             else
                 ConnectionResult = "Connection succeeded!";
 

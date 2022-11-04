@@ -10,7 +10,7 @@
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
         Name="SQLConnectionWindow"
-        Height="420" 
+        Height="440" 
         WindowStyle="ToolWindow"
         Width="400">
     <Grid Margin="20"
@@ -93,23 +93,34 @@
                 CommandParameter="{Binding ElementName=SQLConnectionWindow}"/>
 
         <!-- Message about the connection test result -->
-        <Border Grid.Row="8"
-                Margin="0 0 0 0">
-            <StackPanel>
-                <ProgressBar Visibility="{Binding IsConnecting,Converter={local:BoolToVisibilityConverter}}" 
-                             IsIndeterminate="True"
-                             Height="10"/>
-                <TextBlock Text="{Binding ConnectionResult}"
-                           Visibility="{Binding IsConnecting,Converter={local:InverseBoolToVisibilityConverter}}"
-                           Height="40"
-                           FontWeight="Bold"/>
-            </StackPanel>
-        </Border>
-        
+        <Grid Grid.Row="8">
+            
+            <!-- Show progress of current task -->
+            <ProgressBar Visibility="{Binding IsConnecting,Converter={local:BoolToVisibilityConverter}}" 
+                            IsIndeterminate="True"
+                            Height="10"/>
+
+            <!-- Details of results -->
+            <FlowDocumentScrollViewer HorizontalAlignment="Stretch"
+                                        BorderThickness="1"
+                                        BorderBrush="Black"
+                                        Visibility="{Binding IsConnecting,Converter={local:InverseBoolToVisibilityConverter}}"
+                                        Height="60"
+                                        VerticalScrollBarVisibility="Auto">
+                <FlowDocument LineHeight="1"
+                                Background="AliceBlue">
+                    <Paragraph FontFamily="{Binding ElementName=SQLConnectionWindow,Path=FontFamily}"
+                                FontSize="{Binding ElementName=SQLConnectionWindow,Path=FontSize}">
+                        <Run Text="{Binding ConnectionResult}"/>
+                    </Paragraph>
+                </FlowDocument>
+            </FlowDocumentScrollViewer>
+        </Grid>
+
         <!-- OK/Cancel buttons -->
         <StackPanel Grid.Row="9"
                     Orientation="Horizontal"
-                    Margin="0 10 0 0"
+                    Margin="0 20 0 0"
                     HorizontalAlignment="Right">
             
             <Button Content="OK"

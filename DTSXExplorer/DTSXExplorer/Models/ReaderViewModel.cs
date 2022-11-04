@@ -322,6 +322,10 @@ namespace DTSXExplorer
             if (e.Error != null)
             {
                 ResultMessage = e.Error.Message;
+                if(e.Error.InnerException != null)
+                {
+                    ResultMessage = string.Concat(ResultMessage, Environment.NewLine, e.Error.InnerException.Message);
+                }
             }
             else if(!e.Cancelled)
             {

@@ -20,13 +20,11 @@
                 <!-- Log label -->
                 <RowDefinition Height="20"/>
                 
-                <!-- Log entries -->
+                <!-- Results panel -->               
                 <RowDefinition Height="*"/>
-                
-                <!-- Results -->
-                <RowDefinition Height="70"/>
             </Grid.RowDefinitions>
-            
+
+            <!-- Input controls -->
             <StackPanel Grid.Row="0" 
                         Orientation="Vertical">
                 
@@ -221,9 +219,9 @@
                         <FlowDocument LineHeight="1">
                             <Paragraph>
                                 <Hyperlink TextDecorations="None"
-                                                   FontFamily="{Binding ElementName=txt_Destination_Path,Path=FontFamily}"
-                                                   FontSize="{Binding ElementName=txt_Destination_Path,Path=FontSize}"
-                                                   Click="hyperlink_Click_View_Table_Definition">
+                                           FontFamily="{Binding ElementName=txt_Destination_Path,Path=FontFamily}"
+                                           FontSize="{Binding ElementName=txt_Destination_Path,Path=FontSize}"
+                                           Click="hyperlink_Click_View_Table_Definition">
                                     <Run Text="View table definition"/>
                                 </Hyperlink>
                             </Paragraph>
@@ -244,26 +242,54 @@
 						Command="{Binding ReadCommand}" />
             </StackPanel>
 
-            <Border Grid.Row="1">
-                <TextBlock Text="Log:" 
-                       Margin="25 0 0 0"/>
-            </Border>
+            <!-- Log label -->
+            <TextBlock Grid.Row="1" 
+                        Text="Log:" 
+                        Margin="25 0 0 0"/>
 
-            <!-- Log list -->
-            <ListBox Grid.Row="2" 
-                     ItemsSource="{Binding ScriptFilePaths}"
-                     Margin="25 0 25 0"
-                     VerticalAlignment="Stretch"/>
+            <!-- Results panel -->
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <!-- Log list -->
+                    <RowDefinition Height="*" MinHeight="100"/>
 
-            <!-- Results of reading -->
-            <Border Grid.Row="3"
-                    Margin="25 10 25 20"
-                    Padding="5 0 0 0"
-                    BorderThickness="1"
-                    BorderBrush="Black">
-                <TextBlock FontWeight="Bold"
-				           Text="{Binding ResultMessage}" />
-            </Border>
+                    <!-- Grid splitter -->
+                    <RowDefinition Height="Auto"/>
+
+                    <!-- Results panel -->
+                    <RowDefinition Height="*" MinHeight="70"/>
+                </Grid.RowDefinitions>
+
+                <!-- Log list -->
+                <ListBox Grid.Row="0" 
+                        ItemsSource="{Binding ScriptFilePaths}"
+                        Margin="25 0 25 0"
+                        VerticalAlignment="Stretch"/>
+
+                <!-- Grid splitter -->
+                <GridSplitter Grid.Row="1"
+                            Height="5"
+                            ShowsPreview="False"
+                            HorizontalAlignment="Stretch"
+                            Margin="25 0 25 0"/>
+
+                <!-- Results of reading -->
+                <FlowDocumentScrollViewer Grid.Row="2"
+                                        HorizontalAlignment="Stretch"
+                                        BorderThickness="1"
+                                        BorderBrush="Black"
+                                        Margin="25 0 25 20"
+                                        Padding="0"
+                                        VerticalScrollBarVisibility="Auto">
+                    <FlowDocument LineHeight="1"
+                                Background="AliceBlue">
+                        <Paragraph FontFamily="{Binding ElementName=txt_Destination_Path,Path=FontFamily}"
+                                FontSize="{Binding ElementName=txt_Destination_Path,Path=FontSize}">
+                            <Run Text="{Binding ResultMessage}"/>
+                        </Paragraph>
+                    </FlowDocument>
+                </FlowDocumentScrollViewer>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
