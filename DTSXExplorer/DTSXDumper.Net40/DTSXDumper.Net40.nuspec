@@ -5,13 +5,18 @@
     <version>$version$</version>
     <title>$title$</title>
     <authors>Luis Lema</authors>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <license type="expression">MIT</license>
+	<icon>logo.png</icon>
     <projectUrl>https://github.com/lemalcs/DTSXReader</projectUrl>
-    <description>$description$</description>
+    <description>Exports massive quantities of DTSX files to a structure better suitable for analysis and mining tasks.
+This version targets .NET Framework 4.0 and later.</description>
     <releaseNotes>Exports DTSX files to SQL scripts and SQL Server database. 
-	This version targets .NET Framework 4.0 and later.</releaseNotes>
+	</releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>DTSX, SSIS, DTSX Reader, SQL Server Integration Services, .NET Framework</tags>
   </metadata>
+   <files>
+    <file src="..\..\logo.png" target="\" />
+  </files>
 </package>

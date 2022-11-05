@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("DTSXDumper for .Net Framework 4.0")]
-[assembly: AssemblyDescription("DTSXDumper for .Net Framework 4.0")]
+[assembly: AssemblyDescription("DTSXDumper for .Net Framework 4.0sdfsdfsdfsdf")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("DTSXDumper")]

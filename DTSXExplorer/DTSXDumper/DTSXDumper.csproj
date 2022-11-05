@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -9,9 +9,19 @@
     <PackageReleaseNotes>Export DTSX files to SQL scripts and SQL Server database.</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/lemalcs/DTSXReader</RepositoryUrl>
     <Copyright>2022</Copyright>
-    <Description>Exports DTSX files to a structure better suitable for analysis and mining tasks.</Description>
+    <Description>Exports massive quantities of DTSX files to a structure better suitable for analysis and mining tasks.</Description>
     <PackageProjectUrl>https://github.com/lemalcs/DTSXReader</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageIcon>logo.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
