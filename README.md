@@ -204,9 +204,12 @@ and conntype.field_name='DTS:CreationName'
 
 To retrieve more information such as data flow tasks, creator name, script tasks; you can open the DTSX file with a text editor and read the inner XML in order to write a query that fits your needs, the queries listed above can give you guidelines of how to write them.
 
-## Compatibility
+## DTSXDumper library
 
-The library DTSXDumper (used to read DTSX files) is supported in the following environments:
-- .NET Framework 4.0 and later.
-- .NET Core 3.1 and later.
-- .NET 5.0 and later.
+The library DTSXDumper can be used to read and export DTSX files from other type of applications such as: command line tools, web services or even other DTSX files.
+
+You can review the DTSXExplorer project (WPF desktop application) as an example of how to use this library.
+
+There are two libraries available as nuget packages:
+- [DTSXDumper](https://www.nuget.org/packages/DTSXDumper) which targets .NET 3.1 and later 
+- [DTSXDumper.Net40](https://www.nuget.org/packages/DTSXDumper.Net40) which targets .Net Framework 4.0 and later.
