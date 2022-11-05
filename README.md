@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.png" width="256" height="256"/>
+</p>
+
 # DTSXReader
 An helper to read tons of DTSX files without using Visual Studio. 
 
